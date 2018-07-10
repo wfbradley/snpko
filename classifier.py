@@ -13,7 +13,7 @@ from joblib import Parallel, delayed
 
 logger = utils.logger
 
-def single_FDR(feature_fields, max_SGD_iterations, q, one_label_field, knockoff_trial):
+def single_FDR(feature_fields, max_SGD_iterations, args, one_label_field, knockoff_trial):
     df = pd.read_csv(os.path.join(
         args.working_dir, 'knockoffs',
         'knockoffs_%03d.csv' % knockoff_trial))
@@ -67,9 +67,9 @@ def single_FDR(feature_fields, max_SGD_iterations, q, one_label_field, knockoff_
         ratio_cFDR = 1.0 * (1 + np.sum(stat_list <= -W)) / \
             (np.sum(stat_list >= W))
 
-        if ratio_mFDR < q:
+        if ratio_mFDR < args.fdr:
             tau_mFDR = W
-        if ratio_cFDR < q:
+        if ratio_cFDR < args.fdr:
             tau_cFDR = W
     logger.debug("tau_mFDR = %.3f, tau_cFDR = %.3f" %
                  (tau_mFDR, tau_cFDR))
@@ -122,7 +122,7 @@ def signficant_SNPs(args):
 
     # Do the work (in parallel)
     results = (Parallel(n_jobs=args.num_workers)
-               (delayed(single_FDR)(feature_fields, max_SGD_iterations, args.fdr, *x)
+               (delayed(single_FDR)(feature_fields, max_SGD_iterations, args, *x)
                 for x in itertools.product(label_fields,
                                            xrange(args.num_knockoff_trials))))
 
