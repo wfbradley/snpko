@@ -8,6 +8,7 @@ import SNPknock.fastphase as fp
 from SNPknock import knockoffHMM
 from joblib import Parallel, delayed
 import snpko_utils as utils
+from version_snpko import __version__
 
 logger = utils.logger
 

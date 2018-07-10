@@ -5,6 +5,7 @@ import pandas as pd
 import os
 import logging
 import argparse
+from version_snpko import __version__
 
 
 def safe_mkdir(directory):

@@ -5,6 +5,8 @@ import os
 import pandas as pd
 import snpko_utils as utils
 import re
+from version_snpko import __version__
+
 logger = utils.logger
 
 
@@ -60,24 +62,25 @@ def check_and_convert_input(args):
 
     # If "rs12345_G" format, then extract wild-type info.
     p2 = re.compile(r'^rs\d+_[ACGT]$')
-    all_rs_fields_match=True
+    all_rs_fields_match = True
     for c in df.columns:
         if p.match(c):
             if not(p2.match(c)):
-                all_rs_fields_match=False
+                all_rs_fields_match = False
                 break
     if all_rs_fields_match:
-        SNP_list_1=[]
-        wild_type_list_1=[]
+        SNP_list_1 = []
+        wild_type_list_1 = []
         logger.info('All SNP fields of form "rs12345_G"; extracting wild-type.')
         for c in df.columns:
             if p2.match(c):
-                (SNP,wild_type)=c.split('_')
+                (SNP, wild_type) = c.split('_')
                 SNP_list_1.append(SNP)
                 wild_type_list_1.append(wild_type)
-        df_wild = pd.DataFrame({'SNP':SNP_list_1, 'wild_type':wild_type_list_1})
-        df_wild.to_csv(os.path.join(args.working_dir, 'wild_types.csv'), index=False)
-
+        df_wild = pd.DataFrame(
+            {'SNP': SNP_list_1, 'wild_type': wild_type_list_1})
+        df_wild.to_csv(os.path.join(args.working_dir,
+                                    'wild_types.csv'), index=False)
 
     df.rename(columns=SNP_columns, inplace=True)
     SNP_columns = SNP_columns.values()
@@ -93,7 +96,7 @@ def check_and_convert_input(args):
                 if (not p3.match(geno)) and (not p4.match(geno)):
                     logger.info(
                         '[col=%s, row=%d] Expect genotype like "GT" or "G|T" but got %s' % (
-                            SNP,i,geno))
+                            SNP, i, geno))
                     raise Exception
                 if len(geno) == 2:
                     geno = geno[0] + '|' + geno[1]
@@ -118,19 +121,19 @@ def check_and_convert_input(args):
     drop_col = []
     for f in relevant_columns:
         if df[f].isnull().sum() > threshold:
-            drop_col.append(f)          
+            drop_col.append(f)
     df.drop(columns=drop_col, inplace=True)
-    logger.info('Dropping %d columns because of N/As:'%(len(drop_col)))
+    logger.info('Dropping %d columns because of N/As:' % (len(drop_col)))
     logger.info(drop_col)
 
     # Drop rows with too many N/As
-    threshold = int((args.na_threshold) * len(relevant_columns))    
+    threshold = int((args.na_threshold) * len(relevant_columns))
     drop_row = []
     for i in xrange(len(df)):
         if df.iloc[i].isnull().sum() > threshold:
             drop_row.append(i)
     df.drop(labels=drop_row, inplace=True)
-    logger.info('Dropping %d rows because of N/As:'%(len(drop_row)))
+    logger.info('Dropping %d rows because of N/As:' % (len(drop_row)))
     logger.info(drop_row)
 
     # Confirm that data columns have binary (0/1) data

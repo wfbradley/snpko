@@ -95,7 +95,7 @@ python master.py --input data/fake_SNP_data.csv
 ```
 
 On an experiment with 150 SNPs and 50 patients, running on an instance with 96 cores, the script
-takes about 15-20 minutes to run.  Most of the time is in the last function, `classifier.py`
+takes about 15-20 minutes to run.  Most of the time is in the last function, `classifier.py`.
 
 The script will produce a variety of output files in the `data/` directory and may take several hours to run.  The final output files will appear in `data/results/`.  In particular, output includes:
 * `knockoff_trials.txt`: By default, we run 100 independent knockoffs for each experiment, and measure the percentage of knockoff trials in which a particular SNP shows up, for each label that we are predicting.  (For example, we might find that `rs12345` is a significant predictor for `symptom4`.)

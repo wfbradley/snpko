@@ -4,6 +4,7 @@ import cPickle as pickle
 import os
 import snpko_utils as utils
 import numpy as np
+from version_snpko import __version__
 
 logger = utils.logger
 

@@ -7,6 +7,7 @@ import population_refiner
 import find_loci
 import make_knockoffs
 import classifier
+from version_snpko import __version__
 
 def master(args):
     '''

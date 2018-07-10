@@ -15,6 +15,7 @@ import os
 import snpko_utils as utils
 from joblib import Parallel, delayed
 import multiprocessing
+from version_snpko import __version__
 
 
 logger = utils.logger

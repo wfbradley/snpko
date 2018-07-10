@@ -11,6 +11,7 @@ import operator
 import itertools
 from joblib import Parallel, delayed
 import datetime
+from version_snpko import __version__
 
 logger = utils.logger
 

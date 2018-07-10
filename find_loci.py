@@ -5,6 +5,7 @@ import pandas as pd
 from scipy.stats.stats import pearsonr
 import os
 import snpko_utils as utils
+from version_snpko import __version__
 
 logger = utils.logger
 
