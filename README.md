@@ -71,13 +71,20 @@ pieces of data required by his code.
 
 ## Installation
 
-This software requires the installation of several other packages:
-requirements.txt ...
-PANDAS >=0.21
-
+These installation instructions worked on an Ubuntu 18.04 instance (10GB of disk space).
 
 ```
-pip install SNPknock --user
+sudo apt update
+sudo apt -y install git
+git clone https://github.com/wfbradley/snpko.git
+sudo apt-get -y install python
+sudo apt -y install python-pip
+sudo apt -y install cython
+curl http://scheet.org/code/Linuxfp.tar.gz --output Linuxfp.tar.gz
+tar -xvzf Linuxfp.tar.gz
+chmod a+x fastPHASE
+mv fastPHASE snpko/
+rm Linuxfp.tar.gz
 ```
 
 Install and compile fastPhase...
@@ -93,15 +100,16 @@ Given such a file, the entire pipeline can be run with
 python master.py --input data/fake_SNP_data.csv
 ```
 
-This will produce a variety of output files in the `data/` directory and may take several hours to run.  The final output will appear as `data/final.txt`.
+This will produce a variety of output files in the `data/` directory and may take several hours to run.  The final output files will appear in `data/results/`.  In particular, output includes:
+* `knockoff_trials.txt`: By default, we run 100 independent knockoffs for each experiment, and measure the percentage of knockoff trials in which a particular SNP shows up, for each label that we are predicting.  (For example, we might find that `rs12345` is a significant predictor for `symptom4`.)
 
 By examining `master.py`, you will see that there are a series of individual scripts run in
 order.  It is possible to run any one of these scripts individually; all take the same
 command-line arguments (which are specified in `snpko_utils.py`)
 
-For the record, the command that we run on the intended data for the original experiment was:
+For the record, the command for our original experimental data (which we cannot include :
 ```
-python master.py --input_file 6.28.18.xlsx --skip_rows 1 --fastPHASE_path ~/bin
+python master.py --input_file 6.28.18.xlsx --skip_rows 1
 ```
 
 ## Author

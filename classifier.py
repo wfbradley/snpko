@@ -10,10 +10,16 @@ import snpko_utils as utils
 import operator
 import itertools
 from joblib import Parallel, delayed
+import datetime
 
 logger = utils.logger
 
+
 def single_FDR(feature_fields, max_SGD_iterations, args, one_label_field, knockoff_trial):
+    '''
+    Computes both modified FDR (mFDR) and classical fdr (cFDR) for
+    a single feature, trained on a single knockoff trial.
+    '''
     df = pd.read_csv(os.path.join(
         args.working_dir, 'knockoffs',
         'knockoffs_%03d.csv' % knockoff_trial))
@@ -108,10 +114,8 @@ def signficant_SNPs(args):
         field for field in df_for_field_names.columns if field.startswith('rs')]
     del df_for_field_names
 
-    # features = np.array(df[df.columns[1:]]).astype(float)
     logger.info("Num features=%d, num labels=%d" %
                 (len(feature_fields), len(label_fields)))
-    # labels = np.random.randint(2,size=len(df))
 
     logger.info('Label fields:')
     logger.info(label_fields)
@@ -138,10 +142,19 @@ def signficant_SNPs(args):
 
     out_fp = open(os.path.join(args.working_dir,
                                'results', 'knockoff_trials.txt'), 'w')
+    out_fp.write(
+        'Using the HMM knockoff framework, and applying the method %d times\n'
+        'with independent knockoff samples, determine which SNPs are significant\n'
+        'predictors of which data labels (i.e., dependent variables).\n\n' 
+        'We examine both a classical FDR (cFDR) and a modified FDR (mFDR),\n'
+        'per Candes 2017, Equations 3.10 and 3.11.\n\n'%(
+            args.num_knockoff_trials))
+    out_fp.write(str(datetime.datetime.now()))
+    out_fp.write('\n')
     for one_label_field in summarized:
         out_fp.write('Label: %s\n' % one_label_field)
         for fdr in ['mFDR', 'cFDR']:
-            out_fp.write('mFDR: %s\n' % fdr)
+            out_fp.write('Type of FDR: %s\n' % fdr)
             if len(summarized[one_label_field][fdr])==0:
                 out_fp.write('  No significant SNPs.')
             else:
