@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 
-
 def syn_df(df, num_rows):
 
     df_fake = pd.DataFrame(columns=df.columns, index=np.arange(num_rows))
@@ -13,6 +12,12 @@ def syn_df(df, num_rows):
 
 
 def synthesize(real_data_file, fake_data_file, num_rows):
+    '''
+    Given a (correctly formatted) input file, synthesize a
+    new file by independently scrambling the columns.
+    This allows us to produce an anonymized file.
+    '''
+
     if real_data_file.endswith('.xlsx'):
         df = pd.read_excel(real_data_file)
     else:

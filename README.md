@@ -77,11 +77,16 @@ These installation instructions worked on an Ubuntu 18.04 instance (10GB of disk
 sudo apt update
 sudo apt -y install git
 git clone https://github.com/wfbradley/snpko.git
-cd snpko
-sudo ./install.sh
+sudo snpko/install.sh
 ```
 
-Install and compile fastPhase...
+This has also run this on a Mac laptop running High Sierra; in addition to 
+the obvious differences (e.g., replace `sudo apt get` with OS X equivalents), `pip install`ing SNPknock did not work as such.  Instead,
+* git clone the SNPknock repo
+* Find the `setup.py` file, and 
+* Replace line 49 as follows:
+    * Old: EXTRA_COMPILE_ARGS = ["-O3", "-std=c++11"]
+    * New: EXTRA_COMPILE_ARGS = ["-O3", "-std=c++11", "-stdlib=libc++"]
 
 ## Quick Start Guide
 
@@ -104,11 +109,11 @@ By examining `master.py`, you will see that there are a series of individual scr
 order.  It is possible to run any one of these scripts individually; all take the same
 command-line arguments (which are specified in `snpko_utils.py`)
 
-For the record, the command for our original experimental data (which we cannot include :
+For the record, the command line for our original experimental data is:
 ```
 python master.py --input_file 6.28.18.xlsx --skip_rows 1
 ```
-
+(We cannot include the data file itself because of privacy concerns.)
 ## Author
 
 This code was written by William (Bill) Bradley in 2017 and 2018.
