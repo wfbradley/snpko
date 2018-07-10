@@ -49,11 +49,12 @@ def grab_individual_genotypes(SNP, cache_dir):
     if 'mappings' not in decoded:
         raise LookupError
     for m in decoded['mappings']:
-        required_fields = ['assembly_name', 'location', 'start', 'allele_string']
-        missing_field=False
+        required_fields = ['assembly_name',
+                           'location', 'start', 'allele_string']
+        missing_field = False
         for f in required_fields:
             if f not in m:
-                missing_field=True
+                missing_field = True
                 break
         if missing_field:
             continue
@@ -83,8 +84,6 @@ def grab_individual_genotypes(SNP, cache_dir):
     #     raise LookupError
     # ancestral = decoded['ancestral_allele']
 
-
-
     # Determine genotypes of individual people
     if 'genotypes' not in decoded:
         raise LookupError
@@ -107,7 +106,6 @@ def download_SNPs(args):
 
     logger.info("####################################")
     logger.info("Downloading SNP data from ENSEMBL")
-
 
     cache_dir = os.path.join(args.working_dir, 'ensembl_cache')
     utils.safe_mkdir(cache_dir)
@@ -132,6 +130,8 @@ def download_SNPs(args):
         num_workers = args.num_workers
     server_threshold = 16
     if num_workers > server_threshold:
+        logger.info("Throttling down parallelism from %d to %d for ENSEMBL server" % (
+            num_workers, server_threshold))
         num_workers = server_threshold
 
     results = Parallel(n_jobs=num_workers)(
@@ -145,12 +145,14 @@ def download_SNPs(args):
 
     # If original data did not specify wild_type, then extract reasonable
     # values from ENSEMBL.
-    if not os.path.exists(os.path.join(args.working_dir,'wild_types.csv')):
-        unique_wild_type=[]
+    if not os.path.exists(os.path.join(args.working_dir, 'wild_types.csv')):
+        unique_wild_type = []
         for i in xrange(len(wild_type_list)):
             unique_wild_type[i] = wild_type_list[i].split('/')[0]
-        df_wild = pd.DataFrame({'SNP':SNP_list, 'wild_type': unique_wild_type})
-        df_wild.to_csv(os.path.join(args.working_dir,'wild_types.csv'), index=False)
+        df_wild = pd.DataFrame(
+            {'SNP': SNP_list, 'wild_type': unique_wild_type})
+        df_wild.to_csv(os.path.join(args.working_dir,
+                                    'wild_types.csv'), index=False)
 
     genotypes = dict(zip(SNP_list, geno_list))
     outfile = os.path.join(args.working_dir, "ensembl.pkl")
