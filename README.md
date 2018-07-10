@@ -71,7 +71,7 @@ pieces of data required by his code.
 
 ## Installation
 
-These installation instructions worked on an Ubuntu 18.04 instance (10GB of disk space).
+For **Ubuntu 18.04 instance**.
 
 ```
 sudo apt update
@@ -80,8 +80,10 @@ git clone https://github.com/wfbradley/snpko.git
 sudo snpko/install.sh
 ```
 
-This has also run this on a Mac laptop running High Sierra; in addition to 
-the obvious differences (e.g., replace `sudo apt get` with OS X equivalents), `pip install`ing SNPknock did not work as such.  Instead,
+Other Linux installs should be `foo` similar.
+
+For **Mac/OS X**:  This has run this on a Mac under High Sierra.  In addition to 
+the obvious install differences (e.g., replace `sudo apt get` with OS X equivalents), `pip install`ing SNPknock did not work as such.  Instead,
 * git clone the SNPknock repo
 * Find the `setup.py` file, and 
 * Replace line 49 as follows:
@@ -101,6 +103,8 @@ python master.py --input data/fake_SNP_data.csv
 
 On an experiment with 150 SNPs and 50 patients, running on an instance with 96 cores, the script
 takes about 15-20 minutes to run.  Most of the time is in the last function, `classifier.py`.
+
+10 GB was sufficient disk space for OS + temporary files. 
 
 The script will produce a variety of output files in the `data/` directory and may take several hours to run.  The final output files will appear in `data/results/`.  In particular, output includes:
 * `knockoff_trials.txt`: By default, we run 100 independent knockoffs for each experiment, and measure the percentage of knockoff trials in which a particular SNP shows up, for each label that we are predicting.  (For example, we might find that `rs12345` is a significant predictor for `symptom4`.)
