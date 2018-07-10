@@ -80,7 +80,7 @@ git clone https://github.com/wfbradley/snpko.git
 sudo snpko/install.sh
 ```
 
-Other Linux installs should be `foo` similar.
+Other **Linux** installs should be similar.
 
 For **Mac/OS X**:  This has run this on a Mac under High Sierra.  In addition to 
 the obvious install differences (e.g., replace `sudo apt get` with OS X equivalents), `pip install`ing SNPknock did not work as such.  Instead,
