@@ -44,6 +44,7 @@ def initialize_logger(args):
     ch.setFormatter(formatter)
     logger.addHandler(ch)
     logger.info("##############  Beginning logging  ##############")
+    logger.info("SNPKO version %s"%__version__)
 
 
 def parse_arguments():

@@ -3,7 +3,7 @@
 import numpy as np
 import os
 import pandas as pd
-import snpko_utils as utils
+import utils_snpko as utils
 import re
 from version_snpko import __version__
 
@@ -17,8 +17,7 @@ def check_and_convert_input(args):
     '''
 
     if args.input_file == None:
-        print 'Must specify "--input_file" argument.'
-        print
+        logger.info('Must specify "--input_file" argument.')
         raise Exception
     assert not(args.data_prefix.startswith('rs'))
     assert not(args.data_prefix == 'r')

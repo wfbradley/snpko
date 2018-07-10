@@ -12,7 +12,7 @@ import requests
 import cPickle as pickle
 import pandas as pd
 import os
-import snpko_utils as utils
+import utils_snpko as utils
 from joblib import Parallel, delayed
 import multiprocessing
 from version_snpko import __version__

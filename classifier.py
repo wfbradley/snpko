@@ -6,7 +6,7 @@ import pandas as pd
 import os
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import SGDClassifier
-import snpko_utils as utils
+import utils_snpko as utils
 import operator
 import itertools
 from joblib import Parallel, delayed

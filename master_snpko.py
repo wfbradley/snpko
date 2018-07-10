@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import snpko_utils as utils
+import utils_snpko as utils
 import check_input
 import ensembl_miner
 import population_refiner

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats.stats import pearsonr
 import os
-import snpko_utils as utils
+import utils_snpko as utils
 from version_snpko import __version__
 
 logger = utils.logger
@@ -16,11 +16,6 @@ def correlation(x, y):
 
     if np.isnan(r):
         logger.warn('Pearson R failure; raising exception')
-        print
-        print "#####################"
-        print "# Pearson R failure #"
-        print "#####################"
-        print
         raise Exception
     return(r)
 

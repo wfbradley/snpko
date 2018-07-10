@@ -2,7 +2,7 @@
 
 import cPickle as pickle
 import os
-import snpko_utils as utils
+import utils_snpko as utils
 import numpy as np
 from version_snpko import __version__
 
