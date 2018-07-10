@@ -16,7 +16,7 @@ from version_snpko import __version__
 logger = utils.logger
 
 
-def single_FDR(feature_fields, max_SGD_iterations, args, one_label_field, knockoff_trial):
+def single_FDR(max_SGD_iterations, args, one_label_field, knockoff_trial):
     '''
     Computes both modified FDR (mFDR) and classical fdr (cFDR) for
     a single feature, trained on a single knockoff trial.
@@ -24,6 +24,8 @@ def single_FDR(feature_fields, max_SGD_iterations, args, one_label_field, knocko
     df = pd.read_csv(os.path.join(
         args.working_dir, 'knockoffs',
         'knockoffs_%03d.csv' % knockoff_trial))
+
+    feature_fields = [field for field in df.columns if field.startswith('rs')]
 
     features = np.array(df[feature_fields]).astype(float)
     labels = np.array(df[one_label_field]).astype(float)
@@ -50,6 +52,12 @@ def single_FDR(feature_fields, max_SGD_iterations, args, one_label_field, knocko
 
     # Number of features must be even, because every true SNP is paired with
     # a knockoff:
+    if len(feature_fields) %2 != 0:
+        print
+        print "######################################"
+        print
+        import IPython
+        IPython.embed()
     assert len(feature_fields) % 2 == 0
 
     stat_list = []
@@ -127,7 +135,7 @@ def signficant_SNPs(args):
 
     # Do the work (in parallel)
     results = (Parallel(n_jobs=args.num_workers)
-               (delayed(single_FDR)(feature_fields, max_SGD_iterations, args, *x)
+               (delayed(single_FDR)(max_SGD_iterations, args, *x)
                 for x in itertools.product(label_fields,
                                            xrange(args.num_knockoff_trials))))
 
