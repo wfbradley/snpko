@@ -22,6 +22,8 @@ def initialize_logger(args):
     if logger_initialized:
         return
     logger_initialized = True
+
+    safe_mkdir(args.working_dir)
     log_file = os.path.join(args.working_dir, 'run.log')
 
     if not (args.keep_old_logs):
