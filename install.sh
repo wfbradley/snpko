@@ -1,3 +1,5 @@
+# This works on Ubuntu 18.04
+
 sudo apt-get -y install python
 sudo apt -y install python-pip
 sudo apt -y install cython
