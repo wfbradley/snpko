@@ -92,6 +92,7 @@ def parse_arguments():
 
     return(args)
 
+
 def genotype_to_nonwild_type_count(x, wild_type, on_null=2):
     '''
     Given array with entries like 'G|T', return array
@@ -113,4 +114,4 @@ def genotype_to_nonwild_type_count(x, wild_type, on_null=2):
         out[i] += (x[i][0] != wild_type)
         out[i] += (x[i][2] != wild_type)
 
-    return(out)    
+    return(out)

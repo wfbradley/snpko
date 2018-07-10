@@ -14,6 +14,8 @@ import pandas as pd
 import os
 import snpko_utils as utils
 from joblib import Parallel, delayed
+import multiprocessing
+
 
 logger = utils.logger
 
@@ -121,7 +123,18 @@ def download_SNPs(args):
     logger.info("Start download of genotype data for %d SNPs" %
                 (len(SNP_list)))
 
-    results = Parallel(n_jobs=args.num_workers)(
+    # If there are too many cores, we could overwhelm the ENSEMBL server with requests.  So,
+    # we throttle the parallelism.
+    num_cores = multiprocessing.cpu_count()
+    if args.num_workers == -1:
+        num_workers = num_cores
+    else:
+        num_workers = args.num_workers
+    server_threshold = 16
+    if num_workers > server_threshold:
+        num_workers = server_threshold
+
+    results = Parallel(n_jobs=num_workers)(
         delayed(grab_individual_genotypes)(SNP, cache_dir)
         for SNP in SNP_list)
 
