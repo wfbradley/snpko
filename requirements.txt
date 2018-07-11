@@ -1,5 +1,6 @@
 # List of Python packages to install
 
+numpy>=1.13.0
 SNPknock>=0.5.2
 scipy>=0.19.1
 scikit-learn>=0.19.1
