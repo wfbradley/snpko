@@ -85,6 +85,8 @@ def parse_arguments():
                         help='Correlation threshold for declaring two SNPs to be in the same locus.')
     parser.add_argument('--fdr', type=float, default=0.1,
                         help='Target false discover rate (FDR).')
+    parser.add_argument('--halt', action='store_true', default=False,
+                        help='Enable verbose logging (debug level)')
 
     args = parser.parse_args()
 

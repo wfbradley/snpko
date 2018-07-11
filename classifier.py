@@ -52,12 +52,6 @@ def single_FDR(max_SGD_iterations, args, one_label_field, knockoff_trial):
 
     # Number of features must be even, because every true SNP is paired with
     # a knockoff:
-    if len(feature_fields) %2 != 0:
-        print
-        print "######################################"
-        print
-        import IPython
-        IPython.embed()
     assert len(feature_fields) % 2 == 0
 
     stat_list = []
