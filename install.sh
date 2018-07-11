@@ -8,4 +8,4 @@ tar -xvzf Linuxfp.tar.gz
 chmod a+x fastPHASE
 mv fastPHASE snpko/
 rm Linuxfp.tar.gz
-pip install -r snpko/requirements.txt --user --upgrade
+su -c "pip install -r snpko/requirements.txt --user --upgrade" $SUDO_USER
