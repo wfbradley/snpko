@@ -86,8 +86,10 @@ sudo snpko/install.sh
 
 Other **Linux** installs should be similar.
 
-For **Mac/OS X**:  This has run this on a Mac under High Sierra.  In addition to 
-the obvious install differences (e.g., replace `sudo apt get` with OS X equivalents), `pip install`ing SNPknock did not work as such.  Instead,
+For **Mac/OS X**:  We have run this software on a Mac under High Sierra.  We
+only sketch details for installation.  In addition to  the obvious install
+differences (e.g., replace `sudo apt get` with OS X equivalents), `pip
+install`ing SNPknock did not work as such.  Instead,
 * git clone the SNPknock repo
 * Find the `setup.py` file, and 
 * Replace line 49 as follows:
