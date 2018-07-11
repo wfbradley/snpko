@@ -6,6 +6,7 @@
 [Installation](#installation)  
 [Quick Start Guide](#quick-start-guide)  
 [More Detailed Guide](#more-detailed-guide)  
+[Halting on Completion](#halting-on-completion)
 [Running Time and Space](#running-time-and-space)  
 [Results](#results)  
 [Author](#author)  
@@ -77,12 +78,18 @@ pieces of data required by his code.
 
 For **Ubuntu 18.04 instance**.
 
+If you need to install `git` and then clone this git repo, run:
 ```
 sudo apt update
 sudo apt -y install git
 git clone https://github.com/wfbradley/snpko.git
+```
+Then do build and install the dependencies for this repo itself, run:
+
+```
 sudo snpko/install.sh
 ```
+Optionally, to enable the module to halt the machine, see [Halting on Completion](#halting-on-completion). 
 
 Other **Linux** installs should be similar.
 
@@ -105,17 +112,17 @@ each of the people in your experiment.  An example is provided as `data/fake_SNP
 Given such a file, the entire pipeline can be run with 
 
 ```
-python master_snpko.py --input my_SNP_data.csv
+./master_snpko.py --input my_SNP_data.csv
 ```
 
 We provide a sample input file (with randomized data), so should be able to see the code in action by running
 ```
-python master_snpko.py --input fake_SNP_data.csv
+./master_snpko.py --input fake_SNP_data.csv
 ```
 
 For the record, the command line for our original experimental data is:
 ```
-python master_snpko.py --input_file 6.28.18.xlsx --skip_rows 1
+./master_snpko.py --input_file 6.28.18.xlsx --skip_rows 1
 ```
 (We cannot include the data file itself because of privacy concerns.)
 
@@ -205,6 +212,46 @@ optional arguments:
   --fdr FDR             Target false discover rate (FDR). (default: 0.1)
   --halt                Enable verbose logging (debug level) (default: False)
 ```
+
+## Halting on Completion
+
+The following situation can occur: We run this module on some data, expecting it to take many hours to complete.  We use on a large, relatively expensive cloud instance to speed up the computation.  The code completes in the middle of the night.  We would really like the machine to shut itself down at this point so we do not need to keep paying for an idle instance.  In that situation, use the `--halt` flag, like so:
+```
+sudo ./master_snpko.py --input my_SNP_data.csv --halt
+```
+(Note the `sudo`.)  However, there is a complexity: halting an instance requires superuser access, and `sudo` privileges only lasts for 15 minutes (by default).  So by the time the module finishes running (many hours after launch) and tries to shut itself down, it will no longer be allowed to do so.
+
+This problem can be addressed on Ubuntu 18.04 (and similar platforms) as follows:
+```
+# Install your favorite editor, e.g.,
+sudo apt-get install emacs
+# Set it as default
+export VISUAL=emacs
+# Tinker with sudoers file to make sudo last longer
+sudo visudo
+```
+This will launch your editor on the /etc/sudoers file.  (It is preferable to use `visudo`, rather than editing directly, because `visudo` will guarantee that your edited file parses correctly.)  You will find a bunch of lines like:
+```
+Defaults        env_reset
+Defaults        mail_badpass
+...
+```
+Add a new line:
+```
+Defaults        timestamp_timeout=-1
+```
+and save the change.  This change causes sudo privilege never to expire.  There is an obvious security risk associated with this, although if an adversary can execute commands with `sudo` priveleges, the time limit is probably the least of your worries.
+
+Finally, reboot your system:
+```
+sudo shutdown -r now
+```
+Once the instance restarts, log in again, and proceed to run something like:
+```
+sudo nohup ./master_snpko.py --input my_SNP_data.csv --halt &
+```
+
+Note that if a submodule raises an exception, this will be caught and the machine will still halt.  This is usually a feature (e.g., if your script fails after 3 hours, you still want to stop the instance), but it means that if you have an initial error (e.g., you mistype your input file name), your instance will immediately stop.  So it is probably wise to make sure your command runs for a few minutes *without* the `--halt` option first.  If it seems to be running successfully, then terminate the job (CTRL-C), and restart *with* the `--halt` flag.
 
 ## Running Time and Space
 

@@ -24,6 +24,9 @@ def master(args):
     which observations.  For general context for this problem, see
     README.md
     '''
+
+    utils.check_permissions(args)
+
     try:
         check_input.check_and_convert_input(args)
         ensembl_miner.download_SNPs(args)
@@ -32,11 +35,13 @@ def master(args):
         find_loci.prune(args)
         make_knockoffs.make_all_knockoffs(args)
         classifier.signficant_SNPs(args)
+        halt_machine.possibly_halt(args)
     except:
         logger.warn(traceback.print_exc())
 
         halt_machine.possibly_halt(args)
         raise
+
 
 if __name__ == '__main__':
     args = utils.parse_arguments()

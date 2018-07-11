@@ -16,6 +16,16 @@ logger = logging.getLogger('SNP Knockout logger')
 
 logger_initialized = False
 
+def check_permissions(args):
+    if os.getuid()==0:
+        logger.info('Running as root.')
+        return
+    # If here, we are not root.
+    if args.halt:
+        logger.info('Invoking "--halt" flag without "sudo".')
+        logger.info('  Try: sudo ./master.py --input my_input_file.csv --halt')
+        raise Exception
+    return
 
 def initialize_logger(args):
     global logger_initialized
