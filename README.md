@@ -205,7 +205,7 @@ optional arguments:
 
 ## Running Time and Space
 
-We benchmarked on a cloud instance running Ubuntu 18.04, with 96 cores, 10 GB of disk space and 480 GB of RAM.  (360 GB appeared insufficient.)  Our problem involved about 150 SNPs and 50 patients.  In that case, the `master_snpko` module took about 1 hour and 45 minutes to run.  Most of the time is spent in the last function, `classifier.py`.
+We benchmarked on a cloud instance running Ubuntu 18.04, with 96 cores, 10 GB of disk space and 480 GB of RAM.  (360 GB appeared insufficient.)  Our problem involved about 150 SNPs and 50 patients.  In that case, the `master_snpko` module took about 1 hour and 45 minutes to run.  Most of the time is spent in the last function, `classifier.py`; the combined running time for all other sections was 3 minutes.
 
 10 GB was sufficient disk space for OS + temporary files. 
 
