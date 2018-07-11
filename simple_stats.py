@@ -6,7 +6,6 @@ import pandas as pd
 import utils_snpko as utils
 from version_snpko import __version__
 
-import statsmodels.stats.multitest as smm
 from scipy.stats import fisher_exact
 
 
@@ -19,7 +18,6 @@ def stats(args):
     * Univariate (uncorrected) p-value
     * (Uncorrected) likelihood ratio
     * Bonferroni corrected p-value
-    * Benjamini-Hochberg FDR
     '''
 
     df = pd.read_csv(os.path.join(args.working_dir, 'cleaned_input.csv'))
