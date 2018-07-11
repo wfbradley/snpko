@@ -90,11 +90,12 @@ For **Mac/OS X**:  We have run this software on a Mac under High Sierra.  We
 only sketch details for installation.  In addition to  the obvious install
 differences (e.g., replace `sudo apt get` with OS X equivalents), `pip
 install`ing SNPknock did not work as such.  Instead,
-* git clone the SNPknock repo
-* Find the `setup.py` file, and 
+* git clone the `SNPknock` repo, as above.
+* Find the `setup.py` file in the `SNPknock` rep.
 * Replace line 49 as follows:
     * Old: EXTRA_COMPILE_ARGS = ["-O3", "-std=c++11"]
     * New: EXTRA_COMPILE_ARGS = ["-O3", "-std=c++11", "-stdlib=libc++"]
+* Run `setup.py` to install the `SNPknock` module.
 
 ## Quick Start Guide
 
