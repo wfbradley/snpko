@@ -4,6 +4,10 @@
 [The Problem](#the-problem)  
 [A Little History](#a-little-history)  
 [Installation](#installation)  
+[Quick Start Guide](#quick-start-guide)  
+[More Detailed Guide](#more-detailed-guide)  
+[Running Time and Space](#running-time-and-space)  
+[Results](#results)  
 [Author](#author)  
 [License](#license)  
 [Acknowledgements](#acknowledgements)  
@@ -11,11 +15,11 @@
 
 ## The Problem
 
-We observed a population of 54 pediatric patients suffering from Crohn's disease.
-For each patient, we measured 168 SNPs and observed 8 different radiological
-imaging features (such as "Lumen narrowing" or "Small bowel disease").  We
-were interested to determine which SNPs, if any, were significant predictors
-of particular imaging features.
+The specific problem we addressed involved a population of 54 pediatric
+patients suffering from Crohn's disease. For each patient, we measured 168
+SNPs and observed 8 different radiological imaging features (such as "Lumen
+narrowing" or "Small bowel disease").  We were interested to determine which
+SNPs, if any, were significant predictors of particular imaging features.
 
 This software provides tools for answering this type of question more
 generally: given any set of SNPs and labels (i.e., dependent variables), these
@@ -117,13 +121,15 @@ python master_snpko.py --input_file 6.28.18.xlsx --skip_rows 1
 The `master_snpko.py` module runs a series of individual that process the data in a series of stages.  The modules, in order, are:
 *    **check_input**: Convert raw input data into a standardized form.
 *    **ensembl_miner**: Query the ENSEMBL database for relevant genomic data about the SNPs, including genotypes of individuals.
+*    **simple_stats**: Compute some naive univariate statistics with uncorrected p-values, along with Bonferroni-corrections.
 *    **population_refiner**: Balance SNPs and population.  Not all individuals will have all SNPs sequenced, so we need to choose a subset of SNPs and a subset of the population so that both sets are relatively large.
 *    **find_loci**: Remove correlated SNPs (i.e., deal with linkage disequilibrium.)
 *    **make_knockoffs**:  Train hidden Markov Models for SNPs on each chromosome (with EM), and use each HMM to construct (multiple) knockoffs of the data.
 *    **classifier**:  Run a classifier on the multiple knockoffs and determine which SNPs are significant predictors of which dependent variables given a target false discovery rate.
 
 It is possible to run any one of these scripts individually; all take the same
-command-line arguments (which are specified in `snpko_utils.py`)  For example, the default false discovery rate is 0.1 (i.e., 10%); this only effects the classifier, so after running the code once, you can experiment with a false discovery rate of 20% by running only the last step, e.g.:
+command-line arguments (which are specified in `snpko_utils.py` and listed below in this document).  For example, the default false discovery rate is 0.1 (i.e., 10%), and you may want to 
+experiment with several values.  The FDR only effects the classifier, so after running the code once, you can rerun just the classifier with a false discovery rate of 20% by running only the last step, e.g.:
 ```
 python classifier.py --input my_SNP_data.csv --fdr 0.2
 ```
@@ -135,9 +141,71 @@ On the other hand, the entire set output (both intermediate files, cache files a
 mv data/ data_saved_1/
 ```
 
+For easy reference, here is the full set of command-line arguments:
+
+```
+./master_snpko.py -h
+usage: master_snpko.py [-h] [--input_file INPUT_FILE]
+                       [--working_dir WORKING_DIR] [--skip_rows SKIP_ROWS]
+                       [--na_threshold NA_THRESHOLD] [--never_na]
+                       [--keep_old_logs] [--data_prefix DATA_PREFIX]
+                       [--num_workers NUM_WORKERS] [--snp_weight SNP_WEIGHT]
+                       [--fastPHASE_path FASTPHASE_PATH]
+                       [--random_seed RANDOM_SEED]
+                       [--num_knockoff_trials NUM_KNOCKOFF_TRIALS] [--verbose]
+                       [--locus_threshold LOCUS_THRESHOLD] [--fdr FDR]
+                       [--halt]
+
+SNP Knockouts
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --input_file INPUT_FILE
+                        CSV file with SNPs and dependent variables. (default:
+                        None)
+  --working_dir WORKING_DIR
+                        Directory for all working files and final output.
+                        (default: data)
+  --skip_rows SKIP_ROWS
+                        Skip rows of data file, 0-up indexing. (default: None)
+  --na_threshold NA_THRESHOLD
+                        If fraction of N/A entries in a row or column is >
+                        this threshold, we discard it. "--skip_rows" is
+                        applied first. First drop columns then rows. (default:
+                        0.5)
+  --never_na            By default, convert remaining N/As to double mutants;
+                        if set, N/As raise exception. (default: False)
+  --keep_old_logs       By default, old log file is deleted; this preserves
+                        it. (default: False)
+  --data_prefix DATA_PREFIX
+                        All dependent variables should be labelled with a
+                        common prefix (not beginning with "rs" or "r"), so we
+                        can automatically detect them. (default: Imaging)
+  --num_workers NUM_WORKERS
+                        Number of parallel threads to use. (Default = number
+                        of cores.) (default: -1)
+  --snp_weight SNP_WEIGHT
+                        Weight for Pareto-optimal tradeoff between population
+                        and SNP count. (default: 2.0)
+  --fastPHASE_path FASTPHASE_PATH
+                        Path to "fastPHASE executable" (default: .)
+  --random_seed RANDOM_SEED
+                        Random seed for (reproducible) PRNGs (default: 123)
+  --num_knockoff_trials NUM_KNOCKOFF_TRIALS
+                        Because the knockoff process draws random samples, it
+                        can be helpful to repeat it multiple times. (default:
+                        100)
+  --verbose             Enable verbose logging (debug level) (default: False)
+  --locus_threshold LOCUS_THRESHOLD
+                        Correlation threshold for declaring two SNPs to be in
+                        the same locus. (default: 0.5)
+  --fdr FDR             Target false discover rate (FDR). (default: 0.1)
+  --halt                Enable verbose logging (debug level) (default: False)
+```
+
 ## Running Time and Space
 
-We benchmarked on a cloud instance running Ubuntu 18.04, with 96 cores, 10 GB of disk space and 360 GB of RAM.  Our problem involved about 150 SNPs and 50 patients.  In that case, the `master_snpko` module took about 15-20 minutes to run.  Most of the time is spent in the last function, `classifier.py`.
+We benchmarked on a cloud instance running Ubuntu 18.04, with 96 cores, 10 GB of disk space and 480 GB of RAM.  (360 GB appeared insufficient.)  Our problem involved about 150 SNPs and 50 patients.  In that case, the `master_snpko` module took about 1 hour and 45 minutes to run.  Most of the time is spent in the last function, `classifier.py`.
 
 10 GB was sufficient disk space for OS + temporary files. 
 
@@ -145,7 +213,6 @@ We benchmarked on a cloud instance running Ubuntu 18.04, with 96 cores, 10 GB of
 
 The script will produce a variety of output files in the `data/` directory and may take several hours to run.  The final output files will appear in `data/results/`.  In particular, output includes:
 * `knockoff_trials.txt`: By default, we run 100 independent knockoffs for each experiment, and measure the percentage of knockoff trials in which a particular SNP shows up, for each label that we are predicting.  (For example, we might find that `rs12345` is a significant predictor for `symptom4`.)
-
 
 
 ## Author
