@@ -19,14 +19,17 @@ def master(args):
     which observations.  For general context for this problem, see
     README.md
     '''
-    check_input.check_and_convert_input(args)
-    ensembl_miner.download_SNPs(args)
-    simple_stats.stats(args)
-    population_refiner.refine(args)
-    find_loci.prune(args)
-    make_knockoffs.make_all_knockoffs(args)
-    classifier.signficant_SNPs(args)
-    halt_machine.possibly_halt(args)
+    try:
+        check_input.check_and_convert_input(args)
+        ensembl_miner.download_SNPs(args)
+        simple_stats.stats(args)
+        population_refiner.refine(args)
+        find_loci.prune(args)
+        make_knockoffs.make_all_knockoffs(args)
+        classifier.signficant_SNPs(args)
+    except:
+        halt_machine.possibly_halt(args)
+        raise
 
 if __name__ == '__main__':
     args = utils.parse_arguments()

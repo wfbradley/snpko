@@ -8,3 +8,4 @@ pandas>=0.23.1
 requests>=2.18.4
 joblib>=0.11
 xlrd>=1.0.0
+statsmodels>=0.8.0

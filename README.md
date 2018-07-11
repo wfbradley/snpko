@@ -98,26 +98,56 @@ each of the people in your experiment.  An example is provided as `data/fake_SNP
 Given such a file, the entire pipeline can be run with 
 
 ```
-python master.py --input data/fake_SNP_data.csv
+python master_snpko.py --input my_SNP_data.csv
 ```
 
-On an experiment with 150 SNPs and 50 patients, running on an instance with 96 cores, the script
-takes about 15-20 minutes to run.  Most of the time is in the last function, `classifier.py`.
+We provide a sample input file (with randomized data), so should be able to see the code in action by running
+```
+python master_snpko.py --input fake_SNP_data.csv
+```
+
+For the record, the command line for our original experimental data is:
+```
+python master_snpko.py --input_file 6.28.18.xlsx --skip_rows 1
+```
+(We cannot include the data file itself because of privacy concerns.)
+
+## More Detailed Guide
+
+The `master_snpko.py` module runs a series of individual that process the data in a series of stages.  The modules, in order, are:
+*    **check_input**: Convert raw input data into a standardized form.
+*    **ensembl_miner**: Query the ENSEMBL database for relevant genomic data about the SNPs, including genotypes of individuals.
+*    **population_refiner**: Balance SNPs and population.  Not all individuals will have all SNPs sequenced, so we need to choose a subset of SNPs and a subset of the population so that both sets are relatively large.
+*    **find_loci**: Remove correlated SNPs (i.e., deal with linkage disequilibrium.)
+*    **make_knockoffs**:  Train hidden Markov Models for SNPs on each chromosome (with EM), and use each HMM to construct (multiple) knockoffs of the data.
+*    **classifier**:  Run a classifier on the multiple knockoffs and determine which SNPs are significant predictors of which dependent variables given a target false discovery rate.
+
+It is possible to run any one of these scripts individually; all take the same
+command-line arguments (which are specified in `snpko_utils.py`)  For example, the default false discovery rate is 0.1 (i.e., 10%); this only effects the classifier, so after running the code once, you can experiment with a false discovery rate of 20% by running only the last step, e.g.:
+```
+python classifier.py --input my_SNP_data.csv --fdr 0.2
+```
+
+The code tries to cache partial results where possible; in particular, it will cache data from the ENSEMBL server (so it only needs to perform remote queries on the first pass, assuming the set of SNPs doesn't change) and it will cache the parameters from training the HMMs.
+
+On the other hand, the entire set output (both intermediate files, cache files and results) exist in the same working directory (by default, `data/`).  If you want to preserve your current results in their entirety and start fresh, just move the directory:
+```
+mv data/ data_saved_1/
+```
+
+## Running Time and Space
+
+We benchmarked on a cloud instance running Ubuntu 18.04, with 96 cores, 10 GB of disk space and 360 GB of RAM.  Our problem involved about 150 SNPs and 50 patients.  In that case, the `master_snpko` module took about 15-20 minutes to run.  Most of the time is spent in the last function, `classifier.py`.
 
 10 GB was sufficient disk space for OS + temporary files. 
+
+## Results
 
 The script will produce a variety of output files in the `data/` directory and may take several hours to run.  The final output files will appear in `data/results/`.  In particular, output includes:
 * `knockoff_trials.txt`: By default, we run 100 independent knockoffs for each experiment, and measure the percentage of knockoff trials in which a particular SNP shows up, for each label that we are predicting.  (For example, we might find that `rs12345` is a significant predictor for `symptom4`.)
 
-By examining `master.py`, you will see that there are a series of individual scripts run in
-order.  It is possible to run any one of these scripts individually; all take the same
-command-line arguments (which are specified in `snpko_utils.py`)
 
-For the record, the command line for our original experimental data is:
-```
-python master.py --input_file 6.28.18.xlsx --skip_rows 1
-```
-(We cannot include the data file itself because of privacy concerns.)
+
 ## Author
 
 This code was written by William (Bill) Bradley in 2017 and 2018.
