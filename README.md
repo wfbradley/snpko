@@ -84,7 +84,7 @@ sudo apt update
 sudo apt -y install git
 git clone https://github.com/wfbradley/snpko.git
 ```
-Then do build and install the dependencies for this repo itself, run:
+Then to build and install the dependencies for this repo itself, run:
 
 ```
 sudo snpko/install.sh
