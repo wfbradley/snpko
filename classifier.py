@@ -94,6 +94,7 @@ def single_FDR(max_SGD_iterations, args, one_label_field, knockoff_trial):
             SNP_list_cFDR.append(SNP)
     return(one_label_field, SNP_list_mFDR, SNP_list_cFDR)
 
+
 def signficant_SNPs(args):
     '''
     Determine which SNPs are actually significant predictors of features.
@@ -125,8 +126,6 @@ def signficant_SNPs(args):
 
     utils.safe_mkdir(os.path.join(args.working_dir, 'results'))
 
-
-
     # Do the work (in parallel)
     results = (Parallel(n_jobs=args.num_workers)
                (delayed(single_FDR)(max_SGD_iterations, args, *x)
@@ -136,29 +135,30 @@ def signficant_SNPs(args):
     summarized = {}
     for (one_label_field, SNP_list_mFDR, SNP_list_cFDR) in results:
         if one_label_field not in summarized:
-            summarized[one_label_field]={'mFDR':{},'cFDR':{}}
+            summarized[one_label_field] = {'mFDR': {}, 'cFDR': {}}
         for l, fdr in [(SNP_list_mFDR, 'mFDR'), (SNP_list_cFDR, 'cFDR')]:
             for SNP in l:
                 if SNP not in summarized[one_label_field][fdr]:
-                    summarized[one_label_field][fdr][SNP]=0
-                summarized[one_label_field][fdr][SNP]+=1
+                    summarized[one_label_field][fdr][SNP] = 0
+                summarized[one_label_field][fdr][SNP] += 1
 
     out_fp = open(os.path.join(args.working_dir,
                                'results', 'knockoff_trials.txt'), 'w')
     out_fp.write(
         'Using the HMM knockoff framework, and applying the method %d times\n'
         'with independent knockoff samples, determine which SNPs are significant\n'
-        'predictors of which data labels (i.e., dependent variables).\n\n' 
+        'predictors of which data labels (i.e., dependent variables).\n\n'
         'We examine both a classical FDR (cFDR) and a modified FDR (mFDR),\n'
-        'per Candes 2017, Equations 3.10 and 3.11.\n\n'%(
+        'per Candes 2017, Equations 3.10 and 3.11.\n\n' % (
             args.num_knockoff_trials))
+    out_fp.write('Target FDR: %.1f%%\n\n' % (100.0 * (args.fdr)))
     out_fp.write(str(datetime.datetime.now()))
     out_fp.write('\n')
     for one_label_field in summarized:
         out_fp.write('Label: %s\n' % one_label_field)
         for fdr in ['mFDR', 'cFDR']:
             out_fp.write('Type of FDR: %s\n' % fdr)
-            if len(summarized[one_label_field][fdr])==0:
+            if len(summarized[one_label_field][fdr]) == 0:
                 out_fp.write('  No significant SNPs.')
             else:
                 sorted_SNPs = sorted(
@@ -166,7 +166,9 @@ def signficant_SNPs(args):
                     key=operator.itemgetter(1), reverse=True)
                 for (SNP, count) in sorted_SNPs:
                     percentage = 100.0 * count / args.num_knockoff_trials
-                    out_fp.write("   %s : %d%%\n" % (SNP, np.round(percentage)))
+                    out_fp.write("   %s : %d%%\n" %
+                                 (SNP, np.round(percentage)))
+    out_fp.close()
 
     logger.info('Done with classifier!')
 

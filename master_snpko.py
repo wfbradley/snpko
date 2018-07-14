@@ -8,11 +8,13 @@ import population_refiner
 import find_loci
 import make_knockoffs
 import classifier
+import sig_results
 import halt_machine
 import traceback
 from version_snpko import __version__
 
 logger = utils.logger
+
 
 def master(args):
     '''
@@ -35,6 +37,7 @@ def master(args):
         find_loci.prune(args)
         make_knockoffs.make_all_knockoffs(args)
         classifier.signficant_SNPs(args)
+        sig_results.summarize(args)
         halt_machine.possibly_halt(args)
     except:
         logger.warn(traceback.print_exc())

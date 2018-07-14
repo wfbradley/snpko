@@ -16,8 +16,9 @@ logger = logging.getLogger('SNP Knockout logger')
 
 logger_initialized = False
 
+
 def check_permissions(args):
-    if os.getuid()==0:
+    if os.getuid() == 0:
         logger.info('Running as root.')
         return
     # If here, we are not root.
@@ -26,6 +27,7 @@ def check_permissions(args):
         logger.info('  Try: sudo ./master.py --input my_input_file.csv --halt')
         raise Exception
     return
+
 
 def initialize_logger(args):
     global logger_initialized
@@ -54,7 +56,7 @@ def initialize_logger(args):
     ch.setFormatter(formatter)
     logger.addHandler(ch)
     logger.info("##############  Beginning logging  ##############")
-    logger.info("SNPKO version %s"%__version__)
+    logger.info("SNPKO version %s" % __version__)
 
 
 def parse_arguments():
@@ -95,6 +97,8 @@ def parse_arguments():
                         help='Correlation threshold for declaring two SNPs to be in the same locus.')
     parser.add_argument('--fdr', type=float, default=0.1,
                         help='Target false discover rate (FDR).')
+    parser.add_argument('--obs_freq', type=float, default=0.5,
+                        help='Only trust SNPs that show up in >obs_freq of the knockoff trials.')
     parser.add_argument('--halt', action='store_true', default=False,
                         help='Enable verbose logging (debug level)')
 
