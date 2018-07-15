@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import os
+import sys
 import logging
 import argparse
 from version_snpko import __version__
@@ -57,6 +58,7 @@ def initialize_logger(args):
     logger.addHandler(ch)
     logger.info("##############  Beginning logging  ##############")
     logger.info("SNPKO version %s" % __version__)
+    logger.info("Command line: %s" % (' '.join(sys.argv)))
 
 
 def parse_arguments():

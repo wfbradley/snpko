@@ -1,17 +1,21 @@
 # A Pipeline for Statistical Knockouts with SNPs
 
 ##### Table of Contents  
-[The Problem](#the-problem)  
-[A Little History](#a-little-history)  
-[Installation](#installation)  
-[Quick Start Guide](#quick-start-guide)  
-[More Detailed Guide](#more-detailed-guide)  
-[Halting on Completion](#halting-on-completion)
-[Running Time and Space](#running-time-and-space)  
-[Results](#results)  
-[Author](#author)  
-[License](#license)  
-[Acknowledgements](#acknowledgements)  
+-  [The Problem](#the-problem)  
+-  [A Little History](#a-little-history)  
+-  [Installation](#installation)  
+-  [Quick Start Guide](#quick-start-guide)  
+-  [More Detailed Guide](#more-detailed-guide)  
+  *  [General Structure](#general-structure)
+  *  [Logging](#logging)
+  *  [Rerunning the Code](#rerunning-the-code)
+  *  [Command Line Arguments](#command-line-arguments)
+  *  [Halting on Completion](#halting-on-completion)
+  *  [Running Time and Space](#running-time-and-space)  
+  *  [Results](#results)  
+-  [Author](#author)  
+-  [License](#license)  
+-  [Acknowledgements](#acknowledgements)  
 
 
 ## The Problem
@@ -58,8 +62,8 @@ this approach, we construct a list of possibly significant SNPs, but control a
 positives in our list is less than some target rate (like 10%).
 
 The Benjamini-Hochberg procedure was a major advance in statistical handling
-of situations with many hypotheses (as is the case with many SNPs).
-However, there is ongoing interest in developing new techniques with more statistical
+of situations with many hypotheses (as is the case with many SNPs). However,
+there is ongoing interest in developing new techniques with more statistical
 power; that is, two techniques may both guarantee a FDR less than 10%, but one
 of them may produce more hypotheses than the other (i.e., is "more powerful").
 
@@ -87,9 +91,11 @@ git clone https://github.com/wfbradley/snpko.git
 Then to build and install the dependencies for this repo itself, run:
 
 ```
-sudo snpko/install.sh
+cd snpko
+sudo install.sh
 ```
-Optionally, to enable the module to halt the machine, see [Halting on Completion](#halting-on-completion). 
+Optionally, to enable the module to halt the machine, see [Halting on
+Completion](#halting-on-completion).
 
 Other **Linux** installs should be similar.
 
@@ -106,8 +112,9 @@ install`ing SNPknock did not work as such.  Instead,
 
 ## Quick Start Guide
 
-You, the user, need to provide a file with SNPs and dependent variables for 
-each of the people in your experiment.  An example is provided as `data/fake_SNP_data.csv`.
+You, the user, need to provide a file with SNPs and dependent variables for
+each of the people in your experiment.  An example is provided as
+`data/fake_SNP_data.csv`.
 
 Given such a file, the entire pipeline can be run with 
 
@@ -128,6 +135,8 @@ For the record, the command line for our original experimental data is:
 
 ## More Detailed Guide
 
+### General Structure
+
 The `master_snpko.py` module runs a series of individual that process the data in a series of stages.  The modules, in order, are:
 *    **check_input**: Convert raw input data into a standardized form.
 *    **ensembl_miner**: Query the ENSEMBL database for relevant genomic data about the SNPs, including genotypes of individuals.
@@ -136,21 +145,43 @@ The `master_snpko.py` module runs a series of individual that process the data i
 *    **find_loci**: Remove correlated SNPs (i.e., deal with linkage disequilibrium.)
 *    **make_knockoffs**:  Train hidden Markov Models for SNPs on each chromosome (with EM), and use each HMM to construct (multiple) knockoffs of the data.
 *    **classifier**:  Run a classifier on the multiple knockoffs and determine which SNPs are significant predictors of which dependent variables given a target false discovery rate.
+*    **sig_results**:  Filter the results to the relevant ones (i.e., the significant SNPs).
 
 It is possible to run any one of these scripts individually; all take the same
-command-line arguments (which are specified in `snpko_utils.py` and listed below in this document).  For example, the default false discovery rate is 0.1 (i.e., 10%), and you may want to 
-experiment with several values.  The FDR only effects the classifier, so after running the code once, you can rerun just the classifier with a false discovery rate of 20% by running only the last step, e.g.:
+command-line arguments (which are specified in `snpko_utils.py` and listed below in this document).
+
+### Logging
+
+Detailed logging information is written in the working directory to `run.log`.  By default, this file is located at `data/run.log`.
+
+### Rerunning the Code
+
+You may wish to rerun the code in part or in whole.  You'll need to run the `master.py` once to produce all the intermediate files, but from that point, you can rerun portions selectively.
+
+For example, the default false discovery rate is 0.1 (i.e., 10%), but you may
+want to experiment with several values.   Since FDR only effects the
+classifier, so after running the code once, you can rerun just the classifier
+with a false discovery rate of 20% by running only the last step, e.g.:
 ```
 python classifier.py --input my_SNP_data.csv --fdr 0.2
 ```
 
-The code tries to cache partial results where possible; in particular, it will cache data from the ENSEMBL server (so it only needs to perform remote queries on the first pass, assuming the set of SNPs doesn't change) and it will cache the parameters from training the HMMs.
+To accelerate computation during subsequent reprocessing, the code caches
+partial results where possible. In particular, it will cache data from the
+ENSEMBL server (so it only needs to perform remote queries on the first pass,
+assuming the set of SNPs doesn't change) and it will cache the HMM parameters
+fit from the EM run.
 
-On the other hand, the entire set output (both intermediate files, cache files and results) exist in the same working directory (by default, `data/`).  If you want to preserve your current results in their entirety and start fresh, just move the directory:
+Note that this process will overwrite old files in the working directory including
+(unless you use the `--keep_old_logs` flag) the old `run.log` file.
+
+If you wish to preserve all your data as is start afresh, just
+move the working directory to a new location, e.g.,:
 ```
 mv data/ data_saved_1/
 ```
 
+### Command Line Arguments
 For easy reference, here is the full set of command-line arguments:
 
 ```
@@ -210,12 +241,14 @@ optional arguments:
                         Correlation threshold for declaring two SNPs to be in
                         the same locus. (default: 0.5)
   --fdr FDR             Target false discover rate (FDR). (default: 0.1)
+  --obs_freq OBS_FREQ   Only trust SNPs that show up in >obs_freq of the
+                        knockoff trials. (default: 0.5)  
   --halt                Enable verbose logging (debug level) (default: False)
 ```
 
-## Halting on Completion
+### Halting on Completion
 
-The following situation can occur: We run this module on some data, expecting it to take many hours to complete.  We use on a large, relatively expensive cloud instance to speed up the computation.  The code completes in the middle of the night.  We would really like the machine to shut itself down at this point so we do not need to keep paying for an idle instance.  In that situation, use the `--halt` flag, like so:
+The following situation can occur: We run the module on some data, expecting it to take many hours to complete.  We use on a large, relatively expensive cloud instance to speed up the computation.  The code completes in the middle of the night.  We would really like the machine to shut itself down at this point so we do not need to keep paying for an idle instance.  In that situation, use the `--halt` flag, like so:
 ```
 sudo ./master_snpko.py --input my_SNP_data.csv --halt
 ```
@@ -253,16 +286,38 @@ sudo nohup ./master_snpko.py --input my_SNP_data.csv --halt &
 
 Note that if a submodule raises an exception, this will be caught and the machine will still halt.  This is usually a feature (e.g., if your script fails after 3 hours, you still want to stop the instance), but it means that if you have an initial error (e.g., you mistype your input file name), your instance will immediately stop.  So it is probably wise to make sure your command runs for a few minutes *without* the `--halt` option first.  If it seems to be running successfully, then terminate the job (CTRL-C), and restart *with* the `--halt` flag.
 
-## Running Time and Space
+### Running Time and Space
 
-We benchmarked on a cloud instance running Ubuntu 18.04, with 96 cores, 10 GB of disk space and 480 GB of RAM.  (360 GB appeared insufficient.)  Our problem involved about 150 SNPs and 50 patients.  In that case, the `master_snpko` module took about 1 hour and 45 minutes to run.  Most of the time is spent in the last function, `classifier.py`; the combined running time for all other sections was 3 minutes.
+Much of of this code is parallelized, so you will benefit from running on a multi-core machine.
+
+We benchmarked on a cloud instance running Ubuntu 18.04, with 96 cores, 10 GB of disk space and 480 GB of RAM.  (360 GB appeared insufficient.)  Our problem involved about 150 SNPs and 50 patients.  In that case, the `master_snpko` module took about 1 hour and 45 minutes to run.  Most of the time is spent in the last function, `classifier.py`; the combined running time for all other sections was only 3 minutes.
 
 10 GB was sufficient disk space for OS + temporary files. 
 
-## Results
+### Results
 
-The script will produce a variety of output files in the `data/` directory and may take several hours to run.  The final output files will appear in `data/results/`.  In particular, output includes:
-* `knockoff_trials.txt`: By default, we run 100 independent knockoffs for each experiment, and measure the percentage of knockoff trials in which a particular SNP shows up, for each label that we are predicting.  (For example, we might find that `rs12345` is a significant predictor for `symptom4`.)
+When the module runs, it produces a variety of files in the working directory (default: `data/`) that may be of interest.  On completion, final output is written to a `results` subdirectory (default: `data/results/`).  Output files are:
+* `knockoff_trials.txt`:  This file records the frequency with which particular SNPs were correlated with particular dependent variables.  The file should be fairly human-readable.  It has a section for each label (i.e., dependent variable); within a section, it has a section for the modified FDR (`mFDR`), followed by the classical FDR (`cFDR`).  Within a subsection, we list the percentage of knockoff trials for which the SNP appeared (suppressing the SNP if it never showed up).  For example:
+```
+Label: Imaging: Colon disease
+Type of FDR: mFDR
+   rs6088765 : 73%
+   rs11742570 : 69%
+   rs174537 : 43%
+```
+* `uncorrected.csv`: This is a convenience file listing the *uncorrected* p-values and odds ratios for all the <SNP, label> pairs, along with the (statistically weak) Bonferroni corrected p-values.  Here are the CSV fields with one sample row:
+```
+SNP,label,uncorrected_p_value,uncorrected_odds_ratio,bonferroni_corrected_p_value
+rs10486483,Imaging: Activity,0.009536,9.285714,1.0
+```
+* `exploratory.csv`: This is the subset of <SNP, label>s from `uncorrected.csv` where the uncorrected p-values are <0.05.  Although these p-values are not reliable in themselves, they may be useful from the standpoint of exploratory statistics to help guide future studies.
+* `sig_results.csv`: This is the the subset of <SNP, label> pairs that the knockoff procedure has deemed to be significant.  Specifically, we require the mFDR to be > `--fdr` (default: 0.1=10%); and we require this threshold to be crossed for > `--obs_freq` of the knockoff trials (default: 0.5=50%).  Here are the CSV fields with one sample row:
+```
+SNP,fdr,fdr_type,label,obs_freq,uncorrected_odds_ratio,uncorrected_p_value
+rs6088765,0.1,mFDR,Imaging: Colon disease,0.73,6.111111,0.083833
+```
+
+By default, we run 100 independent knockoffs for each experiment, and measure the percentage of knockoff trials in which a particular SNP shows up, for each label that we are predicting.  (For example, we might find that `rs12345` is a significant predictor for `symptom4` in 37 of the .)
 
 
 ## Author
