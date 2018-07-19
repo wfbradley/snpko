@@ -13,7 +13,7 @@ def safe_mkdir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-logger = logging.getLogger('SNP Knockout logger')
+logger = logging.getLogger('SNP Knockoff logger')
 
 logger_initialized = False
 
