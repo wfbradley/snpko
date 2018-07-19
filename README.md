@@ -1,8 +1,10 @@
-# A Pipeline for Statistical Knockouts with SNPs
+# A Pipeline for Statistical Knockoffs with SNPs
 
 ##### Table of Contents  
 -  [The Problem](#the-problem)  
--  [A Little History](#a-little-history)  
+  *  [The General Problem](#the-general-problem)  
+  *  [The Specific Problem](#the-specific-problem)  
+  *  [A Little History](#a-little-history)  
 -  [Installation](#installation)  
 -  [Quick Start Guide](#quick-start-guide)  
 -  [More Detailed Guide](#more-detailed-guide)  
@@ -20,18 +22,26 @@
 
 ## The Problem
 
-The specific problem we addressed involved a population of 54 pediatric
-patients suffering from Crohn's disease. For each patient, we measured 168
-SNPs and observed 8 different radiological imaging features (such as "Lumen
-narrowing" or "Small bowel disease").  We were interested to determine which
-SNPs, if any, were significant predictors of particular imaging features.
+### The General Problem
 
-This software provides tools for answering this type of question more
-generally: given any set of SNPs and labels (i.e., dependent variables), these
-tools will:
+Suppose we have selected a set of single nucleotide polymorphisms (SNPs) along
+with a set of binary observations (such as the presence or absence of a
+particular symptom). We measure these SNPs and observations across a
+population of (human) subjects. Our goal is to determine which SNPs are
+predictive of which observations.
+
+As one can easily consider hundreds or thousands of SNPs, we are faced with a
+multiple hypothesis problem.  In particular, forming a 2x2 contingency table
+for each (SNP, observation) pair is statistically unsound-- we would consider
+so many tables that we would "accidentally" see some correlation.
+
+This software provides tools for answering this type of question using a new
+statistical framework called a "knockoff", which appears to be a major advance
+over classical tools for handling multiple hypotheses. Given any set of SNPs
+and labels (i.e., dependent variables), these tools will:
 * Download relevant information about the SNPs from the ENSEMBL online repository, 
 * Train an HMM on the data,
-* Construct statistical knockouts,
+* Construct statistical knockoffs,
 * Train a classifier on the data, and
 * Produce a set of SNPs with a controlled false discovery rate.
 
@@ -39,7 +49,18 @@ Some of these steps are computationally intensive, so much of the code is
 parallelized.  The code will certainly run on a laptop, but a 32 or 64 core
 server may be more appropriate.
 
-## A Little History
+### The Specific Problem
+
+We developed this general pipeline to address a specific instance of the problem.
+
+We examined a population of 54 pediatric patients suffering from Crohn's
+disease. For each patient, we measured 168 SNPs and observed 8 different
+radiological imaging features (such as "Lumen narrowing" or "Small bowel
+disease").  We were interested to determine which SNPs, if any, were
+predictors of particular imaging features.
+
+
+### A Little History
 
 Given a set of SNPs and some dependent variables, how should we determine which 
 SNPs are significant as predictors?
@@ -67,7 +88,7 @@ there is ongoing interest in developing new techniques with more statistical
 power; that is, two techniques may both guarantee a FDR less than 10%, but one
 of them may produce more hypotheses than the other (i.e., is "more powerful").
 
-A recent entrant into this field is the use of "statistical knockouts".  This
+A recent entrant into this field is the use of "statistical knockoffs".  This
 approach was introduced in [Panning for Gold: Model-X Knockoffs for High-
 dimensional Controlled Variable Selection](https://arxiv.org/abs/1610.02351)
 by Candes et al in 2016, and extended to hidden Markov models in [Gene Hunting
@@ -197,7 +218,7 @@ usage: master_snpko.py [-h] [--input_file INPUT_FILE]
                        [--locus_threshold LOCUS_THRESHOLD] [--fdr FDR]
                        [--halt]
 
-SNP Knockouts
+SNP Knockoffs
 
 optional arguments:
   -h, --help            show this help message and exit
