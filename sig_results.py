@@ -25,7 +25,7 @@ def summarize(args):
     df_uncorrected.iloc[df_uncorrected['uncorrected_p_value'].values < 0.05].to_csv(
         os.path.join(args.working_dir, 'results', 'exploratory.csv'), index=False)
 
-    # Parse Knockout results
+    # Parse Knockoff results
     label = None
     fdr_type = None
     SNP = None

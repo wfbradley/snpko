@@ -16,7 +16,7 @@ from version_snpko import __version__
 logger = utils.logger
 
 
-def single_FDR(max_SGD_iterations, args, one_label_field, knockoff_trial):
+def single_FDR(child_num, max_SGD_iterations, args, one_label_field, knockoff_trial):
     '''
     Computes both modified FDR (mFDR) and classical fdr (cFDR) for
     a single feature, trained on a single knockoff trial.
@@ -34,8 +34,10 @@ def single_FDR(max_SGD_iterations, args, one_label_field, knockoff_trial):
     tuned_parameters = [{'alpha': np.power(
         10.0, np.linspace(-4, 0, num=9)),
         'l1_ratio': np.linspace(0.05, 1.00, num=20)}]
+    seed = args.random_seed + child_num
     clf = GridSearchCV(SGDClassifier(loss='log', penalty='elasticnet',
-                                     max_iter=max_SGD_iterations),
+                                     max_iter=max_SGD_iterations,
+                                     random_state=seed),
                        tuned_parameters, cv=9, n_jobs=1)
     clf.fit(features, labels)
 
@@ -128,9 +130,9 @@ def signficant_SNPs(args):
 
     # Do the work (in parallel)
     results = (Parallel(n_jobs=args.num_workers)
-               (delayed(single_FDR)(max_SGD_iterations, args, *x)
-                for x in itertools.product(label_fields,
-                                           xrange(args.num_knockoff_trials))))
+               (delayed(single_FDR)(child_num, max_SGD_iterations, args, *x)
+                for child_num, x in enumerate(itertools.product(label_fields,
+                                                                xrange(args.num_knockoff_trials)))))
 
     summarized = {}
     for (one_label_field, SNP_list_mFDR, SNP_list_cFDR) in results:
@@ -159,7 +161,7 @@ def signficant_SNPs(args):
         for fdr in ['mFDR', 'cFDR']:
             out_fp.write('Type of FDR: %s\n' % fdr)
             if len(summarized[one_label_field][fdr]) == 0:
-                out_fp.write('  No significant SNPs.')
+                out_fp.write('  No significant SNPs.\n')
             else:
                 sorted_SNPs = sorted(
                     summarized[one_label_field][fdr].items(),

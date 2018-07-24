@@ -14,8 +14,9 @@ def syn_df(df, num_rows):
 def synthesize(real_data_file, fake_data_file, num_rows):
     '''
     Given a (correctly formatted) input file, synthesize a
-    new file by independently scrambling the columns.
-    This allows us to produce an anonymized file.
+    new (CSV) data file by independently scrambling the columns.
+    This allows us to produce an anonymized file from real
+    data, using the same file format.
     '''
 
     if real_data_file.endswith('.xlsx'):
