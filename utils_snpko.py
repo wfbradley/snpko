@@ -13,7 +13,7 @@ def safe_mkdir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-logger = logging.getLogger('SNP Knockout logger')
+logger = logging.getLogger('SNP Knockoff logger')
 
 logger_initialized = False
 
@@ -63,7 +63,7 @@ def initialize_logger(args):
 
 def parse_arguments():
 
-    parser = argparse.ArgumentParser(description='SNP Knockouts',
+    parser = argparse.ArgumentParser(description='SNP Knockoffs',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--input_file', type=str,
                         help='CSV file with SNPs and dependent variables.')
