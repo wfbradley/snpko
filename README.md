@@ -15,6 +15,7 @@
   *  [Halting on Completion](#halting-on-completion)
   *  [Running Time and Space](#running-time-and-space)  
   *  [Results](#results)  
+  *  [Regression Tests](#regression-tests)
 -  [Author](#author)  
 -  [License](#license)  
 -  [Acknowledgements](#acknowledgements)  
@@ -340,6 +341,18 @@ rs6088765,0.1,mFDR,Imaging: Colon disease,0.73,6.111111,0.083833
 
 By default, we run 100 independent knockoffs for each experiment, and measure the percentage of knockoff trials in which a particular SNP shows up, for each label that we are predicting.  (For example, we might find that `rs12345` is a significant predictor for `symptom4` in 37 of the .)
 
+### Regression Tests
+
+To confirm that the code is functioning correctly, we provide a regression test.  The test generates some synthetic data with known correlations, runs `master_snpko.master()`, and confirms that the correct SNPs were recovered.  It can be run as follows:
+
+```
+cd snpko/  # change to main SNPKO directory, wherever that is
+python test/test_snpko.py
+```
+
+On a 2017 laptop with 4 cores, the test took about 15 minutes.  Results are written to STDOUT and to `/tmp/test_snpko/run.log`.  Success ends with "Test passed successfully"; failure should throw an exception.
+
+Sometimes it can be difficult to debug a problem because the data may be too sensitive to share, but to reproduce the problem we need to mimic the structure of the input file.  To address that problem, we also provide `tests/anonymize_data.py`.  This script produces an "anonymized" version of a target input file in which the entries of each row are scrambled.  Be aware that the original data is still present (e.g., if patients' names were present, they will still be present, just in a random order.)
 
 ## Author
 
