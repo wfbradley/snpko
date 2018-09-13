@@ -8,7 +8,6 @@ import SNPknock.fastphase as fp
 from SNPknock import knockoffHMM
 from joblib import Parallel, delayed
 import utils_snpko as utils
-from version_snpko import __version__
 
 logger = utils.logger
 
@@ -17,7 +16,7 @@ def make_knockoff(chromosome=None, grouped_by_chromosome=None, df_SNP=None,
                   df_geno_experiment=None, df_geno_ensembl=None,
                   SNP_to_wild_type=None, cache_dir=None, path_to_fp=None,
                   em_iterations=25, random_seed=123):
-    #assert chromosome!=None and grouped_by_chromosome!=None and df_SNP!=None
+    # assert chromosome!=None and grouped_by_chromosome!=None and df_SNP!=None
     assert chromosome is not None
     assert grouped_by_chromosome is not None
     assert df_SNP is not None
@@ -41,7 +40,7 @@ def make_knockoff(chromosome=None, grouped_by_chromosome=None, df_SNP=None,
 
         for j, SNP in enumerate(SNPs_on_chromosome):
             X[:, j] = utils.genotype_to_nonwild_type_count(
-                df[SNP].values, SNP_to_wild_type[SNP] )
+                df[SNP].values, SNP_to_wild_type[SNP])
 
     out_path = '%s/chrom_%d' % (cache_dir, chromosome)
 
@@ -108,14 +107,15 @@ def make_all_knockoffs(args):
         (args.working_dir), 'pruned_ensembl.csv'))
 
     # SNP,wild_type,chromosome,chromosome_position
-    df_SNP = pd.read_csv(os.path.join((args.working_dir), 'pruned_SNP_facts.csv'))
-    df_wild = pd.read_csv(os.path.join(args.working_dir,'wild_types.csv'))
+    df_SNP = pd.read_csv(os.path.join(
+        (args.working_dir), 'pruned_SNP_facts.csv'))
+    df_wild = pd.read_csv(os.path.join(args.working_dir, 'wild_types.csv'))
     SNP_to_wild_type = dict(
         zip(df_wild['SNP'].values, df_wild['wild_type'].values))
 
     chromosome_list = np.sort(np.unique(df_SNP['chromosome']))
     for chromosome in chromosome_list:
-        assert chromosome in np.arange(1,24)
+        assert chromosome in np.arange(1, 24)
 
     df_geno_experiment = pd.read_csv(os.path.join(
         (args.working_dir), 'pruned_experiment.csv'))
@@ -130,10 +130,10 @@ def make_all_knockoffs(args):
 
     knockoff_SNP_list = []
 
-    utils.safe_mkdir(os.path.join(args.working_dir,'knockoffs'))
+    utils.safe_mkdir(os.path.join(args.working_dir, 'knockoffs'))
 
     em_iterations = 500
-    logger.info('Number of EM iterations: %d'%em_iterations)
+    logger.info('Number of EM iterations: %d' % em_iterations)
 
     for knockoff_trial_count in xrange(args.num_knockoff_trials):
         random_seed = knockoff_trial_count + args.random_seed
@@ -180,7 +180,7 @@ def make_all_knockoffs(args):
                 data_labels.append(field)
             else:
                 continue
-        df_matched = pd.DataFrame(columns=matched_columns+data_labels,
+        df_matched = pd.DataFrame(columns=matched_columns + data_labels,
                                   index=np.arange(num_experiment_people))
 
         for (X_knockoffs, X_experiment, SNPs_on_chromosome) in knockoff_SNP_list:
@@ -191,7 +191,7 @@ def make_all_knockoffs(args):
                     df_matched[
                         SNP + '_knockoff'].values[i] = int(X_knockoffs[i, j])
         for data_label in data_labels:
-            df_matched[data_label]=df_geno_experiment[data_label]
+            df_matched[data_label] = df_geno_experiment[data_label]
 
         # Sanity check that all fields are filled in.
         for field in df_knockoffs:

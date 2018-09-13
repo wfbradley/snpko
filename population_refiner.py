@@ -4,7 +4,6 @@ import cPickle as pickle
 import os
 import utils_snpko as utils
 import numpy as np
-from version_snpko import __version__
 
 logger = utils.logger
 
@@ -24,7 +23,7 @@ def refine(args):
     ensembl_filename = os.path.join(args.working_dir, 'ensembl.pkl')
     genotypes = pickle.load(open(ensembl_filename, "rb"))
 
-    logger.info("Initial number of SNPs: %d"%(len(genotypes)))
+    logger.info("Initial number of SNPs: %d" % (len(genotypes)))
     SNP_list = genotypes.keys()
 
     person_count = {}
@@ -33,7 +32,7 @@ def refine(args):
             if person not in person_count:
                 person_count[person] = 0
             person_count[person] += 1
-    logger.info("Initial number of people: %d"%(len(person_count)))
+    logger.info("Initial number of people: %d" % (len(person_count)))
 
     # We are
     #   (1) going to grab a swathe of population with many SNPs (i.e., restrict
@@ -71,8 +70,8 @@ def refine(args):
         (proposed_population, proposed_SNP_list) = pareto_point(c)
         pop_size = len(proposed_population)
         snp_size = len(proposed_SNP_list)
-        score = (1.0 * pop_size / len(person_count)
-                 + (args.snp_weight) * snp_size / len(genotypes))
+        score = (1.0 * pop_size / len(person_count) +
+                 (args.snp_weight) * snp_size / len(genotypes))
         if score > best_score:
             best_score = score
             best_c = c
@@ -97,6 +96,7 @@ def refine(args):
             f.write(',%s' % (genotypes[SNP][person]))
         f.write('\n')
     f.close()
+
 
 if __name__ == '__main__':
     args = utils.parse_arguments()

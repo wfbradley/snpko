@@ -13,6 +13,7 @@ def safe_mkdir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+
 logger = logging.getLogger('SNP Knockoff logger')
 
 logger_initialized = False
@@ -43,7 +44,7 @@ def initialize_logger(args):
     if not (args.keep_old_logs):
         try:
             os.remove(log_file)
-        except:
+        except Exception:
             pass
     logger.setLevel(logging.INFO)
     fh = logging.FileHandler(log_file)
@@ -63,8 +64,7 @@ def initialize_logger(args):
     for f in args.__dict__:
         if f.startswith('__'):
             continue
-        logger.info("   %s  :  %s"%(f,args.__dict__[f]))
-
+        logger.info("   %s  :  %s" % (f, args.__dict__[f]))
 
 
 def parse_arguments():
@@ -113,7 +113,7 @@ def parse_arguments():
     args = parser.parse_args()
 
     # Fully qualify "~"s from path names
-    if args.input_file != None:
+    if args.input_file is not None:
         args.input_file = os.path.expanduser(args.input_file)
     args.working_dir = os.path.expanduser(args.working_dir)
     args.fastPHASE_path = os.path.expanduser(args.fastPHASE_path)
@@ -125,7 +125,7 @@ def genotype_to_nonwild_type_count(x, wild_type, on_null=2):
     '''
     Given array with entries like 'G|T', return array
     with number of nonwild_type haplotypes per genotype.
-    E.g., if wild_type='G', then 
+    E.g., if wild_type='G', then
     'G|G' => 0
     'G|A' => 1
     'G|X' => 1

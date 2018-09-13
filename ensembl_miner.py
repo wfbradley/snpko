@@ -15,7 +15,6 @@ import os
 import utils_snpko as utils
 from joblib import Parallel, delayed
 import multiprocessing
-from version_snpko import __version__
 
 
 logger = utils.logger
@@ -67,7 +66,7 @@ def grab_individual_genotypes(SNP, cache_dir):
         # we want to skip that kind.
         try:
             chromosome = int(m['location'].split(':')[0])
-        except:
+        except Exception:
             continue
 
         loc_start = int(m['start'])
@@ -76,7 +75,7 @@ def grab_individual_genotypes(SNP, cache_dir):
         # Make sure these are defined
         chromosome
         loc_start
-    except:
+    except Exception:
         raise LookupError
 
     # Don't use ancestral type...

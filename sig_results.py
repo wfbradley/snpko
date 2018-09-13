@@ -3,7 +3,6 @@
 import pandas as pd
 import os
 import utils_snpko as utils
-from version_snpko import __version__
 
 
 logger = utils.logger

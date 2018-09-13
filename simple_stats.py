@@ -4,7 +4,6 @@ import numpy as np
 import os
 import pandas as pd
 import utils_snpko as utils
-from version_snpko import __version__
 
 from scipy.stats import fisher_exact
 
@@ -45,13 +44,15 @@ def stats(args):
 
     # The above counts the number of non-wild-type haplotypes, so the values are
     # 0 (wild type diploid), 1, or 2.  To analyze with 2x2 contingency table, we
-    # will 1 and 2 into a single state, so we either have "diploid wild type" or
-    # not.
+    # will combine 1 and 2 into a single state, so we either have "diploid wild type"
+    # or not.
     feature_array[feature_array == 2] = 1
 
     # Uncorrected p-value
     with open(os.path.join(args.working_dir, 'results', 'uncorrected.csv'), 'w') as f:
-        f.write('SNP,label,uncorrected_p_value,uncorrected_odds_ratio,bonferroni_corrected_p_value\n')
+        f.write('SNP,label,uncorrected_p_value,uncorrected_odds_ratio,'
+                'bonferroni_corrected_p_value,empirical_ratio_with_imaging_feature,'
+                'empirical_ratio_without_imaging_feature\n')
 
         contingency_table = np.zeros((2, 2))
         p_raw_array = np.zeros((len(label_list), len(feature_list)))
@@ -62,7 +63,8 @@ def stats(args):
                     for feature_state in [0, 1]:
                         contingency_table[feature_state, label_state] = (
                             np.sum(np.logical_and(
-                                feature_array[:,feature_index] == feature_state,
+                                feature_array[
+                                    :, feature_index] == feature_state,
                                 df[label].values == label_state)))
                 oddsratio, pvalue = fisher_exact(contingency_table)
                 p_raw_array[label_index, feature_index] = pvalue
@@ -70,9 +72,15 @@ def stats(args):
                 if bonferroni > 1.0:
                     bonferroni = 1.0
 
-                f.write('%s,%s,%f,%f,%f\n'%(feature,label,pvalue,oddsratio,bonferroni))
-
-
+                # Unfortunately, an "imaging feature" is what we call a "label" in the
+                # contingency table, not a "feature".
+                empirical_ratio_with_feature = '%d/%d' % (contingency_table[1, 1],
+                                                          contingency_table[1, 1] + contingency_table[0, 1])
+                empirical_ratio_without_feature = '%d/%d' % (contingency_table[1, 0],
+                                                             contingency_table[1, 0] + contingency_table[0, 0])
+                f.write('%s,%s,%f,%f,%f,%s,%s\n' %
+                        (feature, label, pvalue, oddsratio, bonferroni,
+                            empirical_ratio_with_feature, empirical_ratio_without_feature))
 
 
 if __name__ == '__main__':

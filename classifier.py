@@ -11,7 +11,6 @@ import operator
 import itertools
 from joblib import Parallel, delayed
 import datetime
-from version_snpko import __version__
 
 logger = utils.logger
 
@@ -173,6 +172,7 @@ def signficant_SNPs(args):
     out_fp.close()
 
     logger.info('Done with classifier!')
+
 
 if __name__ == '__main__':
     args = utils.parse_arguments()

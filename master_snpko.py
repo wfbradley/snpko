@@ -11,7 +11,6 @@ import classifier
 import sig_results
 import halt_machine
 import traceback
-from version_snpko import __version__
 
 logger = utils.logger
 
@@ -39,7 +38,7 @@ def master(args):
         classifier.signficant_SNPs(args)
         sig_results.summarize(args)
         halt_machine.possibly_halt(args)
-    except:
+    except Exception:
         logger.warn(traceback.print_exc())
 
         halt_machine.possibly_halt(args)

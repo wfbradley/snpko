@@ -5,7 +5,6 @@ import os
 import pandas as pd
 import utils_snpko as utils
 import re
-from version_snpko import __version__
 
 logger = utils.logger
 
@@ -16,7 +15,7 @@ def check_and_convert_input(args):
     raise exception.  On failure, returns data frame with SNP data.
     '''
 
-    if args.input_file == None:
+    if args.input_file is None:
         logger.info('Must specify "--input_file" argument.')
         raise Exception
     assert not(args.data_prefix.startswith('rs'))
@@ -32,7 +31,7 @@ def check_and_convert_input(args):
     if not os.path.exists(args.input_file):
         logger.error("Failure to find input file %s" % (args.input_file))
         raise OSError
-    if args.skip_rows != None:
+    if args.skip_rows is not None:
         args.skip_rows = [int(x) for x in args.skip_rows.split(',')]
     if (args.input_file).lower().endswith('xlsx'):
         df = pd.read_excel(args.input_file, skiprows=args.skip_rows)
@@ -159,6 +158,7 @@ def check_and_convert_input(args):
                 (len(df.columns), len(df)))
     logger.info('Sanitized data rewritten as %s' % sanitized_outfile)
     return
+
 
 if __name__ == '__main__':
     args = utils.parse_arguments()

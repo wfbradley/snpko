@@ -5,7 +5,6 @@ import pandas as pd
 from scipy.stats.stats import pearsonr
 import os
 import utils_snpko as utils
-from version_snpko import __version__
 
 logger = utils.logger
 
@@ -28,8 +27,8 @@ def prune(args):
     "linkage disequilibrium".)
 
     To address this problem, we look for correlated clusters of SNPs, and only
-    take one representative from each cluster.  Following Sesia et al. and 
-    Candes et al., we consider two SNPs correlated if the correlation 
+    take one representative from each cluster.  Following Sesia et al. and
+    Candes et al., we consider two SNPs correlated if the correlation
     coefficient > 0.5.
 
     In principle, we have several choices for what data we use to estimate correlation.
@@ -52,7 +51,7 @@ def prune(args):
     logger.info("####################################")
     logger.info('Pruning SNP list to remove correlations within loci.')
     df_SNP = pd.read_csv(os.path.join(args.working_dir, 'SNP_facts.csv'))
-    df_wild = pd.read_csv(os.path.join(args.working_dir,'wild_types.csv'))
+    df_wild = pd.read_csv(os.path.join(args.working_dir, 'wild_types.csv'))
     SNP_to_wild_type = dict(
         zip(df_wild['SNP'].values, df_wild['wild_type'].values))
 
@@ -78,7 +77,8 @@ def prune(args):
             bad_SNP_list.append(SNP)
         good_SNP_list.append(SNP)
 
-    logger.info('Dropping %d SNPs with constant genotypes:'%(len(bad_SNP_list)))
+    logger.info('Dropping %d SNPs with constant genotypes:' %
+                (len(bad_SNP_list)))
     logger.info(bad_SNP_list)
 
     df_SNP = df_SNP.iloc[good_SNP_vector].reset_index()
@@ -127,7 +127,7 @@ def prune(args):
                 (locus_count, locus_SNP_count))
 
     df[distinct_loci + data_labels].to_csv(os.path.join(args.working_dir, 'pruned_experiment.csv'),
-                             index=False)
+                                           index=False)
 
     df_ensembl[distinct_loci].to_csv(os.path.join(
         args.working_dir, 'pruned_ensembl.csv'), index=False)
