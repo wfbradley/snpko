@@ -12,4 +12,4 @@ chmod a+x fastPHASE
 rm Linuxfp.tar.gz
 
 # Pip install everything else, but run pip as user, not superuser
-su -c "pip install -r snpko/requirements.txt --user --upgrade" $SUDO_USER
+su -c "pip install -r requirements.txt --user --upgrade" $SUDO_USER

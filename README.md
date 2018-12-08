@@ -107,6 +107,7 @@ For **Ubuntu 18.04 instance**.
 If you need to install `git` and then clone this git repo, run:
 ```
 sudo apt update
+sudo apt upgrade
 sudo apt -y install git
 git clone https://github.com/wfbradley/snpko.git
 ```
@@ -114,7 +115,7 @@ Then to build and install the dependencies for this repo itself, run:
 
 ```
 cd snpko
-sudo install.sh
+sudo ./install.sh
 ```
 Optionally, to enable the module to halt the machine, see [Halting on
 Completion](#halting-on-completion).
