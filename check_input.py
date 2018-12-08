@@ -55,7 +55,7 @@ def check_and_convert_input(args):
     SNP_columns = {}
     for c in df.columns:
         x = p.match(c)
-        if x != None:
+        if x is not None:
             SNP_columns[c] = c[:x.end()]
 
     # If "rs12345_G" format, then extract wild-type info.

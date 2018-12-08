@@ -121,7 +121,8 @@ def make_all_knockoffs(args):
         (args.working_dir), 'pruned_experiment.csv'))
 
     # Make sure we have the same SNPs everywhere.
-    assert set(df_geno_ensembl.columns) == set(df_geno_ensembl.columns)
+    assert (set([c for c in df_geno_ensembl.columns if c.startswith('rs')]) ==
+            set([c for c in df_geno_experiment.columns if c.startswith('rs')]))
     for SNP in df_SNP.SNP.values:
         assert SNP in df_geno_ensembl.columns
 
