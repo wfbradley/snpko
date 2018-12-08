@@ -83,7 +83,7 @@ def prune(args):
 
     df_SNP = df_SNP.iloc[good_SNP_vector].reset_index()
     df = df[good_SNP_list + data_labels]
-    df_ensembl = df[good_SNP_list]
+    df_ensembl = df_ensembl[good_SNP_list]
 
     grouped_by_chromosome = df_SNP.groupby('chromosome')
     logger.info('Considering %d chromosomes' %
