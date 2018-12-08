@@ -35,7 +35,7 @@ def make_knockoff(chromosome=None, grouped_by_chromosome=None, df_SNP=None,
     X_experiment = np.empty((num_experiment_people, len(SNPs_on_chromosome)))
     X_ensembl = np.empty((num_ensembl_people, len(SNPs_on_chromosome)))
     for X, df in [
-            (X_experiment, df_geno_ensembl),
+            (X_experiment, df_geno_experiment),
             (X_ensembl, df_geno_ensembl)]:
 
         for j, SNP in enumerate(SNPs_on_chromosome):
