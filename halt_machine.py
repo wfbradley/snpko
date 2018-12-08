@@ -1,7 +1,7 @@
 import utils_snpko as utils
 import subprocess
 
-logger = utils.logge
+logger = utils.logger
 
 
 def possibly_halt(args):
