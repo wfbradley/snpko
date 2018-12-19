@@ -36,7 +36,7 @@ def single_FDR(child_num, max_SGD_iterations, args, one_label_field, knockoff_tr
     seed = args.random_seed + child_num
     clf = GridSearchCV(SGDClassifier(loss='log', penalty='elasticnet',
                                      max_iter=max_SGD_iterations,
-                                     random_state=seed),
+                                     random_state=seed, tol=1e-4),
                        tuned_parameters, cv=9, n_jobs=1)
     clf.fit(features, labels)
 
