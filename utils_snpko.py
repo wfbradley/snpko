@@ -6,6 +6,7 @@ import os
 import sys
 import logging
 import argparse
+import sklearn, scipy
 from version_snpko import __version__
 
 
@@ -68,6 +69,9 @@ def initialize_logger(args):
         if f.startswith('__'):
             continue
         logger.info("   %s  :  %s" % (f, args.__dict__[f]))
+    logger.info("Library versions:")
+    for f in [sklearn, np, pd, scipy]:
+        logger.info("   %s  :  %s" % (f.__name__, f.__version__))
 
 
 def parse_arguments():
