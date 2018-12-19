@@ -96,7 +96,7 @@ def single_FDR(child_num, max_SGD_iterations, args, one_label_field, knockoff_tr
     return(one_label_field, SNP_list_mFDR, SNP_list_cFDR)
 
 
-def signficant_SNPs(args):
+def significant_SNPs(args):
     '''
     Determine which SNPs are actually significant predictors of features.
     '''
@@ -177,4 +177,14 @@ def signficant_SNPs(args):
 if __name__ == '__main__':
     args = utils.parse_arguments()
     utils.initialize_logger(args)
-    signficant_SNPs(args)
+
+    # Because this step takes so long, we allow halting here if
+    # called from command line.
+    try:
+        significant_SNPs(args)
+        halt_machine.possibly_halt(args)
+    except Exception:
+        logger.warn(traceback.print_exc())
+
+        halt_machine.possibly_halt(args)
+        raise

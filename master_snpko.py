@@ -35,7 +35,7 @@ def master(args):
         population_refiner.refine(args)
         find_loci.prune(args)
         make_knockoffs.make_all_knockoffs(args)
-        classifier.signficant_SNPs(args)
+        classifier.significant_SNPs(args)
         sig_results.summarize(args)
         halt_machine.possibly_halt(args)
     except Exception:

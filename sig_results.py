@@ -91,7 +91,8 @@ def summarize(args):
     df_expected = df_results[['SNP', 'fdr_type', 'label', 'obs_freq']]
     df_expected = df_expected.groupby(['SNP', 'fdr_type']).sum().reset_index()
     df_expected['fdr'] = fdr
-    df_expected = df_expected.sort_values(by='obs_freq', ascending=False)
+    df_expected.rename(columns={'obs_freq': 'expected_obs_freq'}, inplace=True)
+    df_expected = df_expected.sort_values(by='expected_obs_freq', ascending=False)
     df_expected.to_csv(os.path.join(args.working_dir, 'results', 'expected_appearance.csv'),
                        index=False)
 
