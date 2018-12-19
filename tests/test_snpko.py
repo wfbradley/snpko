@@ -136,9 +136,9 @@ if __name__ == '__main__':
     try:
         utils.safe_mkdir(args.working_dir)
     except Exception:
-        print()
+        print('\n')
         print("Could not create working directory %s" % (args.working_dir))
-        print()
+        print('\n')
         raise
     args.num_knockoff_trials = 19
     args.data_prefix = 'Label_'
