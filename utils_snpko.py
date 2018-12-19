@@ -64,7 +64,7 @@ def initialize_logger(args):
     logger.info("SNPKO version %s" % __version__)
     logger.info("Command line: %s" % (' '.join(sys.argv)))
     logger.info("Runtime parameters:")
-    for f in args.__dict__:
+    for f in sorted(args.__dict__.keys()):
         if f.startswith('__'):
             continue
         logger.info("   %s  :  %s" % (f, args.__dict__[f]))
