@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+
 def syn_df(df, num_rows):
 
     df_fake = pd.DataFrame(columns=df.columns, index=np.arange(num_rows))
@@ -24,14 +25,15 @@ def synthesize(real_data_file, fake_data_file, num_rows):
     else:
         df = pd.read_csv(real_data_file)
 
-    if num_rows == None:
+    if num_rows is None:
         num_rows = len(df)
     df_fake = syn_df(df, num_rows)
     if fake_data_file:
         df_fake.to_csv(fake_data_file, index=False)
     else:
-        s=df_fake.to_csv(fake_data_file, index=False)
-        print (s)
+        s = df_fake.to_csv(fake_data_file, index=False)
+        print(s)
+
 
 if __name__ == '__main__':
     import argparse

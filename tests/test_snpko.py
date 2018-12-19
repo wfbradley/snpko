@@ -5,10 +5,8 @@
 import numpy as np
 import pandas as pd
 import os
-import utils_snpko as utils
-from version_snpko import __version__
-import argparse
 import master_snpko
+import utils_snpko as utils
 
 
 logger = utils.logger
@@ -100,30 +98,32 @@ def validate_results(args):
         discovered_correlations[SNP] = label
 
     # Check that all discoveries are valid
-    false_positive_count=0
+    false_positive_count = 0
     for SNP in discovered_correlations:
         if SNP not in true_correlations:
             logger.info("Invalid correlation: %s => %s" % (
                 SNP, discovered_correlations[SNP]))
-            false_positive_count+=1
+            false_positive_count += 1
 
     # Check that all true correlations are discovered
-    false_negative_count=0
+    false_negative_count = 0
     for SNP in true_correlations:
         if SNP not in discovered_correlations:
             logger.info("Missing correlation: %s => %s" % (
                 SNP, true_correlations[SNP]))
-            false_negative_count+=1
+            false_negative_count += 1
 
-    precision = 1.0 - 1.0 * false_positive_count / (len(discovered_correlations))
+    precision = 1.0 - 1.0 * false_positive_count / \
+        (len(discovered_correlations))
     recall = 1.0 - 1.0 * false_negative_count / (len(true_correlations))
-    logger.info("Precision: %.3f"%precision)
-    logger.info("Recall:    %.3f"%recall)
+    logger.info("Precision: %.3f" % precision)
+    logger.info("Recall:    %.3f" % recall)
 
-    if precision<0.6 or recall<0.6:
+    if precision < 0.6 or recall < 0.6:
         logger.info("Performance too bad!")
         raise Exception
     logger.info("Test passed successfully.")
+
 
 if __name__ == '__main__':
     args = utils.parse_arguments()
@@ -135,18 +135,18 @@ if __name__ == '__main__':
         args.working_dir = '/tmp/test_snpko'
     try:
         utils.safe_mkdir(args.working_dir)
-    except:
-        print
-        print "Could not create working directory %s" % (args.working_dir)
-        print
+    except Exception:
+        print()
+        print("Could not create working directory %s" % (args.working_dir))
+        print()
         raise
     args.num_knockoff_trials = 19
     args.data_prefix = 'Label_'
-    if args.input_file == None:
+    if args.input_file is None:
         # If default working directory, redirect to /tmp :
         input_file = os.path.join(args.working_dir, input_filename_base)
         args.input_file = input_file
-    args.random_seed=234
+    args.random_seed = 234
 
     utils.initialize_logger(args)
 
