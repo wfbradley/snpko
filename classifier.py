@@ -43,7 +43,8 @@ def single_FDR(child_num, max_SGD_iterations, args, one_label_field, knockoff_tr
     logger.debug("Best parameters set found on development set:")
     logger.debug("GRID_PARAMS: %s" % (clf.best_params_))
     logger.debug("Best score: %.4f" % (clf.best_score_))
-    if args.verbose:
+    # Disabling this for now; it's just too verbose.
+    if False and args.verbose:
         logger.debug("Grid scores on development set:")
         means = clf.cv_results_['mean_test_score']
         stds = clf.cv_results_['std_test_score']
