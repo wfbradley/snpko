@@ -41,7 +41,7 @@ def single_FDR(child_num, max_SGD_iterations, args, one_label_field, knockoff_tr
     clf.fit(features, labels)
 
     logger.debug("Best parameters set found on development set:")
-    logger.debug(clf.best_params_)
+    logger.debug("GRID_PARAMS: %s" % (clf.best_params_))
     logger.debug("Best score: %.4f" % (clf.best_score_))
     if args.verbose:
         logger.debug("Grid scores on development set:")
