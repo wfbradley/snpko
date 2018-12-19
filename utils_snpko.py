@@ -46,7 +46,10 @@ def initialize_logger(args):
             os.remove(log_file)
         except Exception:
             pass
-    logger.setLevel(logging.INFO)
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
     fh = logging.FileHandler(log_file)
     fh.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s: %(message)s')
@@ -108,7 +111,7 @@ def parse_arguments():
     parser.add_argument('--obs_freq', type=float, default=0.5,
                         help='Only trust SNPs that show up in >obs_freq of the knockoff trials.')
     parser.add_argument('--halt', action='store_true', default=False,
-                        help='Enable verbose logging (debug level)')
+                        help='Halt machine at completion.')
 
     args = parser.parse_args()
 
