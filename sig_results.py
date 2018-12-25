@@ -5,32 +5,21 @@ import pandas as pd
 import os
 import utils_snpko as utils
 
-
 logger = utils.logger
 
 
-def summarize(args):
-    '''
-    Summarize results about significantly predictive SNPs.
-    '''
+def parse_knockoff_results(args, df_uncorrected=None):
+    if df_uncorrected is None:
+        df_uncorrected = pd.read_csv(os.path.join(
+            args.results_dir, 'uncorrected.csv'))
 
-    logger.info("####################################")
-    logger.info("Summarizing final results")
-
-    df_uncorrected = pd.read_csv(os.path.join(
-        args.working_dir, 'results', 'uncorrected.csv'))
     grouped_uncorrected = df_uncorrected.groupby(['SNP', 'label'])
 
-    # Filter uncorrected down to uncorrected p-value <0.05
-    df_uncorrected.iloc[df_uncorrected['uncorrected_p_value'].values < 0.05].to_csv(
-        os.path.join(args.working_dir, 'results', 'exploratory.csv'), index=False)
-
-    # Parse Knockoff results
     label = None
     fdr_type = None
     SNP = None
     result_table = []
-    with open(os.path.join(args.working_dir, 'results', 'knockoff_trials.txt')) as fp:
+    with open(os.path.join(args.results_dir, 'knockoff_trials.txt')) as fp:
         for line in fp:
             # chomp:
             line = line[:-1]
@@ -66,13 +55,32 @@ def summarize(args):
          'fdr': fdr_list
          })
 
-    df_results.to_csv(os.path.join(args.working_dir, 'results', 'all_results.csv'),
+    df_results.to_csv(os.path.join(args.results_dir, 'all_results.csv'),
                       index=False)
+    return(df_results, fdr)
+
+
+def summarize(args):
+    '''
+    Summarize results about significantly predictive SNPs.
+    '''
+
+    logger.info("####################################")
+    logger.info("Summarizing final results")
+
+    df_uncorrected = pd.read_csv(os.path.join(
+        args.results_dir, 'uncorrected.csv'))
+
+    # Filter uncorrected down to uncorrected p-value <0.05
+    df_uncorrected.iloc[df_uncorrected['uncorrected_p_value'].values < 0.05].to_csv(
+        os.path.join(args.results_dir, 'exploratory.csv'), index=False)
+
+    (df_results, fdr) = parse_knockoff_results(args, df_uncorrected=df_uncorrected)
 
     # Restrict to SNPs that occur more frequently than a target threshold
     df_sig_threshold = df_results.iloc[
         df_results.obs_freq.values > args.obs_freq]
-    df_sig_threshold.to_csv(os.path.join(args.working_dir, 'results', 'sig_results.csv'),
+    df_sig_threshold.to_csv(os.path.join(args.results_dir, 'sig_results.csv'),
                             index=False)
 
     # Alternately, extract the single most-frequently occuring SNP of each type
@@ -83,7 +91,7 @@ def summarize(args):
         max_index.append(df_fdr_label.index[local_index_of_biggest])
     df_sig_max = df_results.iloc[max_index]
     df_sig_max = df_sig_max.sort_values(by='obs_freq', ascending=False)
-    df_sig_max.to_csv(os.path.join(args.working_dir, 'results', 'sig_max.csv'),
+    df_sig_max.to_csv(os.path.join(args.results_dir, 'sig_max.csv'),
                       index=False)
 
     # Add the probabilities across all trials (gives something like the expected number
@@ -93,7 +101,7 @@ def summarize(args):
     df_expected['fdr'] = fdr
     df_expected.rename(columns={'obs_freq': 'expected_obs_freq'}, inplace=True)
     df_expected = df_expected.sort_values(by='expected_obs_freq', ascending=False)
-    df_expected.to_csv(os.path.join(args.working_dir, 'results', 'expected_appearance.csv'),
+    df_expected.to_csv(os.path.join(args.results_dir, 'expected_appearance.csv'),
                        index=False)
 
 

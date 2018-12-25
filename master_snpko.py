@@ -11,6 +11,7 @@ import classifier
 import sig_results
 import halt_machine
 import traceback
+import p_values
 
 logger = utils.logger
 
@@ -37,6 +38,15 @@ def master(args):
         make_knockoffs.make_all_knockoffs(args)
         classifier.significant_SNPs(args)
         sig_results.summarize(args)
+        if args.p_values:
+            p_values.preserve_original_files(args)
+            for p_trial_num in xrange(args.p_samples):
+                p_values.prepare_files(args, p_trial_num)
+                make_knockoffs.make_all_knockoffs(args)
+                classifier.significant_SNPs(args)
+                sig_results.parse_knockoff_results(args)
+                p_values.upload_p_value_files(args, p_trial_num)
+            p_values.extract_null_distribution(args)
         halt_machine.possibly_halt(args)
     except Exception:
         logger.warn(traceback.print_exc())

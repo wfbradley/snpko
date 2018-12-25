@@ -9,3 +9,7 @@ requests>=2.18.4
 joblib>=0.11
 xlrd>=1.0.0
 statsmodels>=0.8.0
+
+google-auth>=1.6.2
+google-cloud-storage>=0.34.0
+boto3>=1.7.26

@@ -11,6 +11,9 @@ import operator
 import itertools
 from joblib import Parallel, delayed
 import datetime
+import halt_machine
+import traceback
+
 
 logger = utils.logger
 
@@ -31,13 +34,17 @@ def single_FDR(child_num, max_SGD_iterations, args, one_label_field, knockoff_tr
 
     # Set the parameters by cross-validation
     tuned_parameters = [{'alpha': np.power(
-        10.0, np.linspace(-4, 0, num=9)),
-        'l1_ratio': np.linspace(0.05, 1.00, num=20)}]
+        10.0, np.linspace(-4, 0, num=args.alpha_count)),
+        'l1_ratio': np.linspace(0.05, 1.00, num=args.l1_count)}]
+    # Avoid reuse of random seed:
+    assert child_num < 10000
     seed = args.random_seed + child_num
+
     clf = GridSearchCV(SGDClassifier(loss='log', penalty='elasticnet',
                                      max_iter=max_SGD_iterations,
                                      random_state=seed, tol=1e-4),
-                       tuned_parameters, cv=9, n_jobs=1)
+                       tuned_parameters, cv=args.cv, n_jobs=1)
+
     clf.fit(features, labels)
 
     logger.debug("Best parameters set found on development set:")
@@ -144,8 +151,7 @@ def significant_SNPs(args):
                     summarized[one_label_field][fdr][SNP] = 0
                 summarized[one_label_field][fdr][SNP] += 1
 
-    out_fp = open(os.path.join(args.working_dir,
-                               'results', 'knockoff_trials.txt'), 'w')
+    out_fp = open(os.path.join(args.results_dir, 'knockoff_trials.txt'), 'w')
     out_fp.write(
         'Using the HMM knockoff framework, and applying the method %d times\n'
         'with independent knockoff samples, determine which SNPs are significant\n'
