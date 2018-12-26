@@ -130,16 +130,16 @@ def prepare_files(args, p_trial_num):
 
 
 def upload_p_value_files(args, p_trial_num):
-    source_filename = os.path.join(args.results_dir, 'all_results.csv')
+    source_name = os.path.join(args.results_dir, 'all_results.csv')
     destination_name = os.path.join('p_values/all_results_%d_%d_%03d.csv' % (
         args.original_random_seed, args.machine_num, p_trial_num))
     if args.upload_gcloud:
         utils.upload_file_to_gcloud(bucket_name=args.bucket_name,
-                                    source_filename=source_filename,
+                                    source_name=source_name,
                                     destination_name=destination_name)
     if args.upload_aws:
         utils.upload_file_to_aws(bucket_name=args.bucket_name,
-                                 source_filename=source_filename,
+                                 source_name=source_name,
                                  destination_name=destination_name)
 
 
@@ -151,8 +151,17 @@ def extract_null_distribution(args):
     utils.safe_mkdir(p_dir)
 
     if args.download_gcloud:
-        logger.info('Gcloud storage download not implemented.')
-        pass
+        logger.info('Downloading p-values from Google cloud.')
+
+        gcloud_file_list = utils.list_files_in_gcloud(
+            bucket_name=args.bucket_name,
+            prefix='p_values/all_results_%d_' % (args.original_random_seed),
+            delimiter='.csv')
+        for f in gcloud_file_list:
+            destination_name = os.path.join(p_dir, os.path.basename(f))
+            utils.download_file_from_gcloud(bucket_name=args.bucket_name,
+                                            source_name=f,
+                                            destination_name=destination_name)
     elif args.download_aws:
         logger.info('AWS S3 download not implemented.')
         pass

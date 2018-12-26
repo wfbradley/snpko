@@ -78,28 +78,50 @@ def initialize_logger(args):
         logger.info("   %s  :  %s" % (f.__name__, f.__version__))
 
 
-def upload_file_to_gcloud(bucket_name=None, source_filename=None, destination_name=None):
-    """Uploads a file to the bucket."""
+def upload_file_to_gcloud(bucket_name=None, source_name=None, destination_name=None):
     credentials, project = google.auth.default()
     storage_client = google.cloud.storage.Client(credentials=credentials)
     bucket = storage_client.get_bucket(bucket_name)
     blob = bucket.blob(destination_name)
     try:
-        blob.upload_from_filename(source_filename)
+        blob.upload_from_filename(source_name)
     except Exception:
         logger.info(
             "Gcloud upload failure; check that instance has write access to 'Google storage'.")
         raise
 
 
-def upload_file_to_aws(bucket_name=None, source_filename=None, destination_name=None,
+def download_file_from_gcloud(bucket_name=None, source_name=None, destination_name=None):
+    credentials, project = google.auth.default()
+    storage_client = google.cloud.storage.Client(credentials=credentials)
+    bucket = storage_client.get_bucket(bucket_name)
+    blob = bucket.blob(source_name)
+    blob.download_to_filename(destination_name)
+
+
+def list_files_in_gcloud(bucket_name=None, prefix=None, delimiter=None):
+    storage_client = google.cloud.storage.Client()
+    bucket = storage_client.get_bucket(bucket_name)
+
+    blobs = bucket.list_blobs(prefix=prefix, delimiter=delimiter)
+    list_of_names = [blob.name for blob in blobs]
+    return(list_of_names)
+
+
+def upload_file_to_aws(bucket_name=None, source_name=None, destination_name=None,
                        SSE=True):
     s3 = boto3.client('s3')
     if SSE:
-        s3.upload_file(source_filename, bucket_name, destination_name,
+        s3.upload_file(source_name, bucket_name, destination_name,
                        ExtraArgs={'ServerSideEncryption': "AES256"})
     else:
-        s3.upload_file(source_filename, bucket_name, destination_name)
+        s3.upload_file(source_name, bucket_name, destination_name)
+
+
+def download_file_from_aws(bucket_name=None, source_name=None, destination_name=None,
+                           SSE=True):
+    s3 = boto3.client('s3')
+    s3.download_file(bucket_name, source_name, destination_name)
 
 
 def parse_arguments():
