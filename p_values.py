@@ -201,6 +201,7 @@ def extract_null_distribution(args):
             M = np.max(df.iloc[df.label.values == label].obs_freq.values)
             max_obs_freq.append((label, M))
 
+    utils.safe_mkdir(args.original_results_dir)
     (label_list, max_list) = zip(*max_obs_freq)
     df_null_hypo = pd.DataFrame(
         {'label': label_list, 'max_obs_freq': max_list})
