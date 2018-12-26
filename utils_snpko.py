@@ -167,6 +167,8 @@ def parse_arguments():
                         help='Download p-value files from Google cloud storage.')
     parser.add_argument('--download_aws', action='store_true', default=False,
                         help='Download p-value files from S3 on AWS.')
+    parser.add_argument('--skip_p_value_accumulation', action='store_true', default=False,
+                        help='Do not collect final p_values (because of machine distribution)')
     parser.add_argument('--halt', action='store_true', default=False,
                         help='Halt machine at completion.')
 

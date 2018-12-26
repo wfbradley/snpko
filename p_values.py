@@ -144,6 +144,9 @@ def upload_p_value_files(args, p_trial_num):
 
 
 def extract_null_distribution(args):
+    if args.skip_p_value_accumulation:
+        return
+
     p_dir = os.path.join(args.working_dir, 'p_values')
     utils.safe_mkdir(p_dir)
 
@@ -209,4 +212,4 @@ if __name__ == '__main__':
     args = utils.parse_arguments()
     utils.safe_mkdir(args.working_dir)
     utils.initialize_logger(args)
-    preserve_original_files(args)
+    extract_null_distribution(args)
