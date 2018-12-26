@@ -159,6 +159,8 @@ def parse_arguments():
                         help='Compute p-values.  (Will make computation *much* slower.)')
     parser.add_argument('--p_thresh', type=float, default=0.05,
                         help='For convenience, summarize threshold for this p-value.')
+    parser.add_argument('--bucket_name', type=str, default='snpko',
+                        help='Cloud bucket name')
     parser.add_argument('--upload_gcloud', action='store_true', default=False,
                         help='Upload p-value files to Google cloud storage.')
     parser.add_argument('--upload_aws', action='store_true', default=False,
