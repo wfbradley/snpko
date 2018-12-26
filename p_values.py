@@ -131,7 +131,7 @@ def prepare_files(args, p_trial_num):
 
 def upload_p_value_files(args, p_trial_num):
     source_filename = os.path.join(args.results_dir, 'all_results.csv')
-    destination_name = os.path.join('all_results_%d_%d_%03d.csv' % (
+    destination_name = os.path.join('p_values/all_results_%d_%d_%03d.csv' % (
         args.original_random_seed, args.machine_num, p_trial_num))
     if args.upload_gcloud:
         utils.upload_file_to_gcloud(bucket_name=args.bucket_name,

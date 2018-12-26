@@ -75,7 +75,8 @@ def summarize(args):
     df_uncorrected.iloc[df_uncorrected['uncorrected_p_value'].values < 0.05].to_csv(
         os.path.join(args.results_dir, 'exploratory.csv'), index=False)
 
-    (df_results, fdr) = parse_knockoff_results(args, df_uncorrected=df_uncorrected)
+    (df_results, fdr) = parse_knockoff_results(
+        args, df_uncorrected=df_uncorrected)
 
     # Restrict to SNPs that occur more frequently than a target threshold
     df_sig_threshold = df_results.iloc[
@@ -100,9 +101,27 @@ def summarize(args):
     df_expected = df_expected.groupby(['SNP', 'fdr_type']).sum().reset_index()
     df_expected['fdr'] = fdr
     df_expected.rename(columns={'obs_freq': 'expected_obs_freq'}, inplace=True)
-    df_expected = df_expected.sort_values(by='expected_obs_freq', ascending=False)
+    df_expected = df_expected.sort_values(
+        by='expected_obs_freq', ascending=False)
     df_expected.to_csv(os.path.join(args.results_dir, 'expected_appearance.csv'),
                        index=False)
+
+    # Possibly upload to cloud
+    result_files = [f for f in os.listdir(args.results_dir) if os.path.isfile(
+        os.path.join(args.results_dir, f))]
+
+    for f in result_files:
+        source_filename = os.path.join(args.results_dir, f)
+        destination_name = os.path.join('causal_%d/%s' % (
+            args.original_random_seed, f))
+        if args.upload_gcloud:
+            utils.upload_file_to_gcloud(bucket_name=args.bucket_name,
+                                        source_filename=source_filename,
+                                        destination_name=destination_name)
+        if args.upload_aws:
+            utils.upload_file_to_aws(bucket_name=args.bucket_name,
+                                     source_filename=source_filename,
+                                     destination_name=destination_name)
 
 
 if __name__ == '__main__':
