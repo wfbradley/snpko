@@ -194,17 +194,25 @@ def extract_null_distribution(args):
     label_types = np.unique(df.label.values)
     max_obs_freq = []
 
-    # Extract max obs_freq from each file for each label type
+    # Extract max obs_freq from each file for each label type and each FDR
+    # (mFDR vs cFDR)
     for f in null_hypo_files:
         df = pd.read_csv(os.path.join(p_dir, f))
         for label in label_types:
-            M = np.max(df.iloc[df.label.values == label].obs_freq.values)
-            max_obs_freq.append((label, M))
+            for fdr in ['mFDR', 'cFDR']:
+                index = np.all((df.label.values == label,
+                                df.fdr.values == fdr), axis=0)
+                if np.sum(index) == 0:
+                    M = 0
+                else:
+                    M = np.max(
+                        df.iloc[df.label.values == label].obs_freq.values)
+                max_obs_freq.append((label, fdr, M))
 
     utils.safe_mkdir(args.original_results_dir)
-    (label_list, max_list) = zip(*max_obs_freq)
+    (label_list, fdr_list, max_list) = zip(*max_obs_freq)
     df_null_hypo = pd.DataFrame(
-        {'label': label_list, 'max_obs_freq': max_list})
+        {'label': label_list, 'fdr': fdr_list, 'max_obs_freq': max_list})
     df_null_hypo.to_csv(os.path.join(
         args.original_results_dir, 'null_hypothesis.csv'), index=False)
 
