@@ -106,23 +106,6 @@ def summarize(args):
     df_expected.to_csv(os.path.join(args.results_dir, 'expected_appearance.csv'),
                        index=False)
 
-    # Possibly upload to cloud
-    result_files = [f for f in os.listdir(args.results_dir) if os.path.isfile(
-        os.path.join(args.results_dir, f))]
-
-    for f in result_files:
-        source_filename = os.path.join(args.results_dir, f)
-        destination_name = os.path.join('causal_%d/%s' % (
-            args.original_random_seed, f))
-        if args.upload_gcloud:
-            utils.upload_file_to_gcloud(bucket_name=args.bucket_name,
-                                        source_filename=source_filename,
-                                        destination_name=destination_name)
-        if args.upload_aws:
-            utils.upload_file_to_aws(bucket_name=args.bucket_name,
-                                     source_filename=source_filename,
-                                     destination_name=destination_name)
-
 
 if __name__ == '__main__':
     args = utils.parse_arguments()

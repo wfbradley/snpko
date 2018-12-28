@@ -35,14 +35,19 @@ def master(args):
         simple_stats.stats(args)
         population_refiner.refine(args)
         find_loci.prune(args)
-        if args.machine_num == 0 or not(args.p_values):
+        if (args.machine_num == 0) or not(args.p_values):
+            logger.info("####################################")
+            logger.info("CAUSAL KNOCKOFFS")
             # If computing p-values and using multiple machines,
             # only compute causal knockoffs on one machine.
             # (Rest are for computing p-values.)
             make_knockoffs.make_all_knockoffs(args)
             classifier.significant_SNPs(args)
             sig_results.summarize(args)
+            utils.upload_results_dir(args)
         if args.p_values:
+            logger.info("####################################")
+            logger.info("P-VALUE KNOCKOFFS")
             p_values.preserve_original_files(args)
             for p_trial_num in xrange(args.p_samples):
                 p_values.prepare_files(args, p_trial_num)

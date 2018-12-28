@@ -124,6 +124,25 @@ def download_file_from_aws(bucket_name=None, source_name=None, destination_name=
     s3.download_file(bucket_name, source_name, destination_name)
 
 
+def upload_results_dir(args):
+    # Possibly upload to cloud
+    result_files = [f for f in os.listdir(args.results_dir) if os.path.isfile(
+        os.path.join(args.results_dir, f))]
+
+    for f in result_files:
+        source_filename = os.path.join(args.results_dir, f)
+        destination_name = os.path.join('causal_%d/%s' % (
+            args.original_random_seed, f))
+        if args.upload_gcloud:
+            upload_file_to_gcloud(bucket_name=args.bucket_name,
+                                  source_filename=source_filename,
+                                  destination_name=destination_name)
+        if args.upload_aws:
+            upload_file_to_aws(bucket_name=args.bucket_name,
+                               source_filename=source_filename,
+                               destination_name=destination_name)
+
+
 def parse_arguments():
 
     parser = argparse.ArgumentParser(description='SNP Knockoffs',
