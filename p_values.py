@@ -201,7 +201,7 @@ def extract_null_distribution(args):
         for label in label_types:
             for fdr in ['mFDR', 'cFDR']:
                 index = np.all((df.label.values == label,
-                                df.fdr.values == fdr), axis=0)
+                                df.fdr_type.values == fdr), axis=0)
                 if np.sum(index) == 0:
                     M = 0
                 else:
