@@ -221,7 +221,13 @@ def extract_null_distribution(args):
     for label in sorted(label_list):
         samples = np.sort(df_null_hypo.iloc[
                           df_null_hypo.label.values == label].max_obs_freq.values)
-        v = samples[int(np.ceil((1.0 - args.p_thresh) * len(samples)))]
+        index = (1.0 - args.p_thresh) * (1 + len(samples)) - 1
+        if index < 0:
+            index = 0
+        if index >= len(samples):
+            index = len(samples) - 1
+        index = int(np.round(index))
+        v = samples[index]
         logger.info("   %s : %.1f%%" % (label, v))
 
 
