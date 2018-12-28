@@ -191,7 +191,7 @@ if __name__ == '__main__':
         significant_SNPs(args)
         halt_machine.possibly_halt(args)
     except Exception:
-        logger.warn(traceback.print_exc())
+        logger.warn(traceback.format_exc())
 
         halt_machine.possibly_halt(args)
         raise

@@ -58,7 +58,7 @@ def master(args):
             p_values.extract_null_distribution(args)
         halt_machine.possibly_halt(args)
     except Exception:
-        logger.warn(traceback.print_exc())
+        logger.warn(traceback.format_exc())
 
         halt_machine.possibly_halt(args)
         raise
