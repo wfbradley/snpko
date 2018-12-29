@@ -57,6 +57,9 @@ def stats(args):
         contingency_table = np.zeros((2, 2))
         p_raw_array = np.zeros((len(label_list), len(feature_list)))
 
+        logger.info('Bonferroni correction: (%d labels x %d SNPs = %d' % (
+            len(label_list), len(feature_list), len(label_list) * len(feature_list)))
+
         for label_index, label in enumerate(label_list):
             for feature_index, feature in enumerate(feature_list):
                 for label_state in [0, 1]:
