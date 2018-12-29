@@ -214,10 +214,10 @@ def extract_null_distribution(args):
     df_null_hypo = pd.DataFrame(
         {'label': label_list, 'fdr': fdr_list, 'max_obs_freq': max_list})
     df_null_hypo.to_csv(os.path.join(
-        args.original_results_dir, 'null_hypothesis.csv'), index=False)
+        args.original_results_dir, 'null_hypothesis_max.csv'), index=False)
 
     # For fun, report the p=0.05 values.
-    logger.info("p=%.2f threshold for each label" % (args.p_thresh))
+    logger.info("p=%.2f (max) threshold for each label" % (args.p_thresh))
     for label in sorted(label_list):
         samples = np.sort(df_null_hypo.iloc[
                           df_null_hypo.label.values == label].max_obs_freq.values)
@@ -229,6 +229,70 @@ def extract_null_distribution(args):
             index = len(samples) - 1
         v = samples[index]
         logger.info("   %s : %.1f%%" % (label, v))
+
+    # Extract all obs_freq ("q" = "obs_freq")
+    # First, extract all obs_freq
+    fdr_mode_list = ['mFDR', 'cFDR']
+    SNP_dict = {}
+    q_dict = {}
+    for fdr in fdr_mode_list:
+        q_dict[fdr] = {}
+        for label in label_list:
+            q_dict[fdr][label] = {}
+    for f in null_hypo_files:
+        df = pd.read_csv(os.path.join(p_dir, f))
+        for i in xrange(len(df)):
+            fdr = df.fdr_type.values[i]
+            label = df.label.values[i]
+            SNP = df.SNP.values[i]
+            if SNP not in q_dict[fdr][label]:
+                q_dict[fdr][label][SNP] = []
+                SNP_dict[SNP] = True
+            q_dict[fdr][label][SNP].append(
+                df.obs_freq.values[i])
+    for fdr in fdr_mode_list:
+        for label in label_list:
+            for SNP in SNP_dict:
+                if SNP not in q_dict[fdr][label]:
+                    q_dict[fdr][label][SNP] = []
+    # Second, add back in zero counts, which had been suppressed
+    all_q = {}
+    for fdr in fdr_mode_list:
+        all_q[fdr] = {}
+        for label in label_list:
+            all_q[fdr][label] = []
+            for SNP in SNP_dict:
+                extra = len(null_hypo_files) - len(q_dict[fdr][label][SNP])
+                for i in xrange(extra):
+                    q_dict[fdr][label][SNP].append(0.0)
+                all_q[fdr][label] += q_dict[fdr][label][SNP]
+
+    # If "sig_max.csv" or "sig_results.csv" files are present, add p-values
+    for f in ['sig_max', 'sig_results']:
+        filename = os.path.join(args.original_results_dir, "%s.csv" % (f))
+        try:
+            df = pd.read_csv(filename)
+        except Exception:
+            logger.info("Could not open file %s" % (filename))
+            continue
+        df['p_value_for_obs_freq'] = 0.0
+        for i in xrange(len(df)):
+            fdr = df.fdr_type.values[i]
+            label = df.label.values[i]
+            SNP = df.SNP.values[i]
+            q = df.obs_freq.values[i]
+            x = np.sort(all_q[fdr][label])
+            y = np.linspace(0, 1, len(x))
+            yy = 1.0 - np.power(y, len(SNP_dict))
+            ii = np.searchsorted(x, q)
+            p = yy[ii]
+
+            df['p_value_for_obs_freq'].values[i] = p
+        try:
+            df.to_csv(filename, index=False)
+        except Exception:
+            # Apparently, original file is not writable; try renaming output.
+            df.to_csv(os.path.join(args.original_results_dir, "%s_p.csv" % (f)))
 
 
 if __name__ == '__main__':
