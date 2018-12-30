@@ -218,7 +218,7 @@ def extract_null_distribution(args):
 
     # For fun, report the p=0.05 values.
     logger.info("p=%.2f (max) threshold for each label" % (args.p_thresh))
-    for label in sorted(label_list):
+    for label in sorted(list(set(label_list))):
         samples = np.sort(df_null_hypo.iloc[
                           df_null_hypo.label.values == label].max_obs_freq.values)
         index = (1.0 - args.p_thresh) * (1 + len(samples)) - 1
@@ -293,6 +293,8 @@ def extract_null_distribution(args):
         except Exception:
             # Apparently, original file is not writable; try renaming output.
             df.to_csv(os.path.join(args.original_results_dir, "%s_p.csv" % (f)))
+
+    logger.info("Done constructing null hypothesis p-values")
 
 
 if __name__ == '__main__':
