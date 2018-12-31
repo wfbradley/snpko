@@ -192,7 +192,7 @@ def parse_arguments():
                         help='This is the index for this machine (in case using multiple machines.')
     parser.add_argument('--cv', type=int, default=9,
                         help='cv-fold cross-validation for the classifier.')
-    parser.add_argument('--alpha_count', type=int, default=9,
+    parser.add_argument('--alpha_count', type=int, default=6,
                         help='Number of alpha values to try in classifier grid search.')
     parser.add_argument('--l1_count', type=int, default=20,
                         help='Number of l1-ratios to try in the classifier grid search.')
