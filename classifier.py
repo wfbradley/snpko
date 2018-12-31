@@ -18,7 +18,7 @@ import traceback
 logger = utils.logger
 
 
-def single_FDR(child_num, max_SGD_iterations, args, one_label_field, knockoff_trial):
+def single_FDR(child_num, SGD_max_iterations, args, one_label_field, knockoff_trial):
     '''
     Computes both modified FDR (mFDR) and classical fdr (cFDR) for
     a single feature, trained on a single knockoff trial.
@@ -42,9 +42,10 @@ def single_FDR(child_num, max_SGD_iterations, args, one_label_field, knockoff_tr
 
     # loss='log' is logistic regression
     clf = GridSearchCV(SGDClassifier(loss='log', penalty='elasticnet',
-                                     max_iter=max_SGD_iterations,
-                                     random_state=seed, tol=args.tol),
-                       tuned_parameters, cv=args.cv, n_jobs=1)
+                                     max_iter=SGD_max_iterations,
+                                     random_state=seed, tol=args.tol,
+                                     n_iter_no_change=args.n_iter_no_change),
+                       tuned_parameters, cv=args.cv, n_jobs=1, iid=True)
 
     clf.fit(features, labels)
 
@@ -113,7 +114,7 @@ def significant_SNPs(args):
     logger.info("####################################")
     logger.info("Classifier for significance.")
 
-    logger.info("SGD iterations: %d" % args.max_SGD_iterations)
+    logger.info("SGD iterations: %d" % args.SGD_max_iterations)
 
     logger.info("Target FDR: %.2f" % args.fdr)
 
@@ -137,7 +138,7 @@ def significant_SNPs(args):
 
     # Do the work (in parallel)
     results = (Parallel(n_jobs=args.num_workers)
-               (delayed(single_FDR)(child_num, args.max_SGD_iterations, args, *x)
+               (delayed(single_FDR)(child_num, args.SGD_max_iterations, args, *x)
                 for child_num, x in enumerate(itertools.product(label_fields,
                                                                 xrange(args.num_knockoff_trials)))))
 
