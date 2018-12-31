@@ -198,7 +198,7 @@ def parse_arguments():
                         help='Number of l1-ratios to try in the classifier grid search.')
     parser.add_argument('--tol', type=str, default='1e-6',
                         help='Tolerance threshold for classifier.  Disable with "--tol=-inf".')
-    parser.add_argument('--n_iter_no_change', type=int, default=20,
+    parser.add_argument('--n_iter_no_change', type=int, default=25,
                         help='If classifier does not improve for this many consecutive steps, then stop.')
     parser.add_argument('--SGD_max_iterations', type=int, default=500,
                         help='Maximum iterations until SGD classifier terminates.')
