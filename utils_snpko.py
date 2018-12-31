@@ -196,6 +196,9 @@ def parse_arguments():
                         help='Number of alpha values to try in classifier grid search.')
     parser.add_argument('--l1_count', type=int, default=20,
                         help='Number of l1-ratios to try in the classifier grid search.')
+    parser.add_argument('--tol', type=float, default=1e-5,
+                        help='Tolerance threshold for classifier.  Set to zero to pass '
+                        'value "None", but note that then behavior varies based on sklearn version.')
     parser.add_argument('--p_values', action='store_true', default=False,
                         help='Compute p-values.  (Will make computation *much* slower.)')
     parser.add_argument('--p_thresh', type=float, default=0.05,
@@ -230,6 +233,9 @@ def parse_arguments():
 
     args.original_random_seed = args.random_seed
     args.random_seed += 10000000 * args.machine_num
+
+    if args.tol == 0.0:
+        args.tol = None
 
     return(args)
 

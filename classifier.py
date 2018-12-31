@@ -40,9 +40,10 @@ def single_FDR(child_num, max_SGD_iterations, args, one_label_field, knockoff_tr
     assert child_num < 10000
     seed = args.random_seed + child_num
 
+    # loss='log' is logistic regression
     clf = GridSearchCV(SGDClassifier(loss='log', penalty='elasticnet',
                                      max_iter=max_SGD_iterations,
-                                     random_state=seed, tol=1e-4),
+                                     random_state=seed, tol=args.tol),
                        tuned_parameters, cv=args.cv, n_jobs=1)
 
     clf.fit(features, labels)
