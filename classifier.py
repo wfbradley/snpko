@@ -113,8 +113,7 @@ def significant_SNPs(args):
     logger.info("####################################")
     logger.info("Classifier for significance.")
 
-    max_SGD_iterations = 500
-    logger.info("SGD iterations: %d" % max_SGD_iterations)
+    logger.info("SGD iterations: %d" % args.max_SGD_iterations)
 
     logger.info("Target FDR: %.2f" % args.fdr)
 
@@ -138,7 +137,7 @@ def significant_SNPs(args):
 
     # Do the work (in parallel)
     results = (Parallel(n_jobs=args.num_workers)
-               (delayed(single_FDR)(child_num, max_SGD_iterations, args, *x)
+               (delayed(single_FDR)(child_num, args.max_SGD_iterations, args, *x)
                 for child_num, x in enumerate(itertools.product(label_fields,
                                                                 xrange(args.num_knockoff_trials)))))
 
