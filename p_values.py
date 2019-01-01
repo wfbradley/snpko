@@ -153,14 +153,14 @@ def extract_null_distribution(args):
     if args.download_gcloud:
         logger.info('Downloading p-values from Google cloud.')
 
-        gcloud_file_list = utils.list_files_in_gcloud(
-            bucket_name=args.bucket_name,
-            prefix='p_values/all_results_%d_' % (args.original_random_seed))
-        for f in gcloud_file_list:
-            destination_name = os.path.join(p_dir, os.path.basename(f))
-            utils.download_file_from_gcloud(bucket_name=args.bucket_name,
-                                            source_name=f,
-                                            destination_name=destination_name)
+        utils.download_prefix_from_gcloud(bucket_name=args.bucket_name,
+                                          prefix='p_values/all_results_%d_' % (
+                                              args.original_random_seed),
+                                          destination_name=p_dir)
+        utils.download_prefix_from_gcloud(bucket_name=args.bucket_name,
+                                          prefix='causal_%d/' % (
+                                              args.original_random_seed),
+                                          destination_name=args.original_results_dir)
     elif args.download_aws:
         logger.info('AWS S3 download not implemented.')
         pass
