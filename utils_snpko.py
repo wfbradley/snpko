@@ -108,13 +108,13 @@ def list_files_in_gcloud(bucket_name=None, prefix=None, delimiter=None):
     return(list_of_names)
 
 
-def download_prefix_from_gcloud(bucket_name=None, prefix=None, destination_name=None):
-    safe_mkdir(destination_name)
+def download_prefix_from_gcloud(bucket_name=None, prefix=None, destination_dir=None):
+    safe_mkdir(destination_dir)
     gcloud_file_list = list_files_in_gcloud(
         bucket_name=bucket_name,
         prefix=prefix)
     for f in gcloud_file_list:
-        destination_name = os.path.join(destination_name, os.path.basename(f))
+        destination_name = os.path.join(destination_dir, os.path.basename(f))
         download_file_from_gcloud(bucket_name=bucket_name,
                                   source_name=f,
                                   destination_name=destination_name)

@@ -156,11 +156,11 @@ def extract_null_distribution(args):
         utils.download_prefix_from_gcloud(bucket_name=args.bucket_name,
                                           prefix='p_values/all_results_%d_' % (
                                               args.original_random_seed),
-                                          destination_name=p_dir)
+                                          destination_dir=p_dir)
         utils.download_prefix_from_gcloud(bucket_name=args.bucket_name,
                                           prefix='causal_%d/' % (
                                               args.original_random_seed),
-                                          destination_name=args.original_results_dir)
+                                          destination_dir=args.original_results_dir)
     elif args.download_aws:
         logger.info('AWS S3 download not implemented.')
         pass
