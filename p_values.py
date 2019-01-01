@@ -298,7 +298,16 @@ def extract_null_distribution(args):
             df.to_csv(filename, index=False)
         except Exception:
             # Apparently, original file is not writable; try renaming output.
-            df.to_csv(os.path.join(args.original_results_dir, "%s_p.csv" % (f)))
+            filename = os.path.join(
+                args.original_results_dir, "%s_p.csv" % (f))
+            df.to_csv(filename, index=False)
+
+        if args.upload_gcloud:
+            utils.upload_file_to_gcloud(bucket_name=args.bucket_name,
+                                        source_name=filename,
+                                        destination_name='causal_%d/%s' % (
+                                            args.original_random_seed,
+                                            os.path.basename(filename)))
 
     logger.info("Done constructing null hypothesis p-values")
 
