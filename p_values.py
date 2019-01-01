@@ -285,11 +285,13 @@ def extract_null_distribution(args):
             y = np.linspace(0, 1, len(x))
             yy = 1.0 - np.power(y, len(SNP_dict))
             ii = np.searchsorted(x, q)
-            # If causal value exceeds maximum observed null hypothesis,
-            # that's great, but we need to decrement the index.
-            if ii == len(yy):
-                ii -= 1
-            p = yy[ii]
+            if ii < len(yy):
+                # Typical case:
+                p = yy[ii]
+            else:
+                # If causal value exceeds maximum observed null hypothesis
+                # (which is a good case)
+                p = 0.0
 
             df['p_value_for_obs_freq'].values[i] = p
         try:
