@@ -352,7 +352,8 @@ By default, we run 100 independent knockoffs for each experiment, and measure th
 
  So, should we consider a selection frequency of 85% to be significant?
 
- To address this question, we do the following.
+ To address this question, we can do the following.
+```
      We examine the experimental data to determine
          The SNPs of interest,
          The number of people in the trials (say, X subjects), and
@@ -368,12 +369,18 @@ By default, we run 100 independent knockoffs for each experiment, and measure th
              in some fraction of the FDR lists.  Record the maximum,
              across all SNPS, of Q.  I.e., for a given label,
                  max_{SNP} Q_{SNP, label}
+```
 
  Once all T=100 trials are done, we now have a distribution for the maximum
- Q value for the null hypothesis (that there is no correlation between the
+ selection frequency Q for the null hypothesis (namely, that there is no correlation between the
  SNPs and the binary output).  So, for example, if we're interested in a
  p=0.05 significance level, we consider all <SNP,label> pairs that are
- greater than or equal to the 95th largest Q.
+ greater than or equal to the 95th largest value of Q.
+
+ The `snpko` module includes code for computing p-values for selection frequency.  Note that this
+ is on the order of 100x slower than the regular SNPKO processing, so is best done by splitting
+ the work across multiple large machines.  We also support sharing the data via Gcloud or AWS
+ by command line arguments to keep the bookkeeping simpler.
 
 
 ### Regression Tests
