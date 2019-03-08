@@ -15,6 +15,7 @@
     *  [Halting on Completion](#halting-on-completion)
     *  [Running Time and Space](#running-time-and-space)  
     *  [Results](#results)  
+    *  [P-values for the Selection Frequency](#p-values-for-the-selection-frequency)
     *  [Regression Tests](#regression-tests)
 -  [Author](#author)  
 -  [License](#license)  
@@ -341,6 +342,39 @@ rs6088765,0.1,mFDR,Imaging: Colon disease,0.73,6.111111,0.083833
 ```
 
 By default, we run 100 independent knockoffs for each experiment, and measure the percentage of knockoff trials in which a particular SNP shows up, for each label that we are predicting.  (For example, we might find that `rs12345` is a significant predictor for `symptom4` in 37 of the .)
+
+### P-values for the Selection Frequency
+ 
+ Running "master_snpko.py" will run a series of knockoff trials aimed to
+ generate lists of SNPs with a target FDR.  For a particular SNP and FDR
+ threshold, then, we might discover that it appears in, say, 85% of all
+ knock-off runs.  Let's call this fraction the *selection frequency*, and denote it by *Q*.
+
+ So, should we consider a selection frequency of 85% to be significant?
+
+ To address this question, we do the following.
+     We examine the experimental data to determine
+         The SNPs of interest,
+         The number of people in the trials (say, X subjects), and
+         The labels for those people
+     We pull background data from ENSEMBL, with SNPs from Y>>X people.
+     for trial=1, ..., T=100:
+         Randomly partition ENSEMBLE into X subjects vs Y-X subjects.
+         Replace the experimental SNPs with the SNPs from the X
+             ENSEMBL subjects
+         Restrict ENSEMBL data to the Y-X subjects.
+         Proceed as usual with SNPKO.
+         For each label (e.g., "Imaging: Fistula"), each SNP shows up
+             in some fraction of the FDR lists.  Record the maximum,
+             across all SNPS, of Q.  I.e., for a given label,
+                 max_{SNP} Q_{SNP, label}
+
+ Once all T=100 trials are done, we now have a distribution for the maximum
+ Q value for the null hypothesis (that there is no correlation between the
+ SNPs and the binary output).  So, for example, if we're interested in a
+ p=0.05 significance level, we consider all <SNP,label> pairs that are
+ greater than or equal to the 95th largest Q.
+
 
 ### Regression Tests
 
