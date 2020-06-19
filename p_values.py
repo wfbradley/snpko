@@ -22,7 +22,9 @@ logger = utils.logger
 # Let's refer to this probability (the "85%" above) as Q.  So, should we
 # consider the fact that Q=85% to be significant?
 
-# To address this question, we do the following.
+# To address this question, we consider two approaches.
+
+# Approach #1: "Empirical max"
 #     We examine the experimental data to determine
 #         The SNPs of interest,
 #         The number of people in the trials (say, X subjects), and
@@ -38,6 +40,34 @@ logger = utils.logger
 #             in some fraction of the FDR lists.  Record the maximum,
 #             across all SNPS, of Q.  I.e., for a given label,
 #                 max_{SNP} Q_{SNP, label}
+
+# Approach #2: "Computed tail"
+#     We examine the experimental data to determine
+#         The SNPs of interest (say, Z SNPs),
+#         The number of people in the trials (say, X subjects), and
+#         The labels for those people
+#     We pull background data from ENSEMBL, with SNPs from Y>>X people.
+#     for trial=1, ..., T=100:
+#         Randomly partition ENSEMBLE into X subjects vs Y-X subjects.
+#         Replace the experimental SNPs with the SNPs from the X
+#             ENSEMBL subjects
+#         Restrict ENSEMBL data to the Y-X subjects.
+#         Proceed as usual with SNPKO.
+#         For each label (e.g., "Imaging: Fistula"), each SNP shows up
+#             in some fraction of the FDR lists.  Record this value
+#             for each <SNP, label> pair.
+#         This collection of values forms a distribution.  We can now
+#             compute the distribution of the maximum of Z draws
+#             from the distribution.
+
+# We compute using both methods, and the results were largely comparable.
+# However, we prefer the second method ("Computed tail") because it provides a
+# much smoother distribution for the estimated p-values. That is, in the
+# example above, the "empirical max" method would provide estimated p-values
+# for 100 values, whereas the "computed tail" method would provide it for more
+# like 10,000 values, so it is effectively continuous.  Therefore, if we wish
+# to  determine a particular p-value, the second method will provide a more
+# precise estimate.
 
 # Once all T=100 trials are done, we now have a distribution for the maximum
 # Q value for the null hypothesis (that there is no correlation between the
