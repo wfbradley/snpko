@@ -61,6 +61,9 @@ radiological imaging features (such as "Lumen narrowing" or "Small bowel
 disease").  We were interested to determine which SNPs, if any, were
 predictors of particular imaging features.
 
+This Python module includes all the statistics used in our paper:
+[Novel Associations Between Genome‐Wide Single Nucleotide Polymorphisms and MR Enterography Features in Crohn's Disease Patients](https://onlinelibrary.wiley.com/doi/abs/10.1002/jmri.27250).
+
 
 ### A Little History
 
