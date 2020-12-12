@@ -1,6 +1,7 @@
 # A Pipeline for Statistical Knockoffs with SNPs
 
 ##### Table of Contents  
+-  [Research Article](#research-article)  
 -  [The Problem](#the-problem)  
     *  [The General Problem](#the-general-problem)  
     *  [The Specific Problem](#the-specific-problem)  
