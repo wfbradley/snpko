@@ -122,8 +122,8 @@ Then to build and install the dependencies for this repo itself, run:
 cd snpko
 sudo ./install.sh
 ```
-Optionally, to enable the module to halt the machine, see [Halting on
-Completion](#halting-on-completion).
+Optionally, to enable the module to halt the machine, see the steps described
+in [Halting on Completion](#halting-on-completion).
 
 Other **Linux** installs should be similar.
 
@@ -134,8 +134,8 @@ install`ing SNPknock did not work as such.  Instead,
 * git clone the `SNPknock` repo, as above.
 * Find the `setup.py` file in the `SNPknock` rep.
 * Replace line 49 as follows:
-    * Old: EXTRA_COMPILE_ARGS = ["-O3", "-std=c++11"]
-    * New: EXTRA_COMPILE_ARGS = ["-O3", "-std=c++11", "-stdlib=libc++"]
+    * Old: `EXTRA_COMPILE_ARGS = ["-O3", "-std=c++11"]`
+    * New: `EXTRA_COMPILE_ARGS = ["-O3", "-std=c++11", "-stdlib=libc++"]`
 * Run `setup.py` to install the `SNPknock` module.
 
 ## Quick Start Guide
@@ -150,7 +150,7 @@ Given such a file, the entire pipeline can be run with
 ./master_snpko.py --input my_SNP_data.csv
 ```
 
-We provide a sample input file (with randomized data), so should be able to see the code in action by running
+We provide a sample input file (with randomized data), so you should be able to see the code in action by running
 ```
 ./master_snpko.py --input fake_SNP_data.csv
 ```
@@ -165,7 +165,7 @@ For the record, the command line for our original experimental data is:
 
 ### General Structure
 
-The `master_snpko.py` module runs a series of individual that process the data in a series of stages.  The modules, in order, are:
+The `master_snpko.py` script orchestrates the execution of a set of Python modules that implement each step of the data processing.  The modules, in order, are:
 *    **check_input**: Convert raw input data into a standardized form.
 *    **ensembl_miner**: Query the ENSEMBL database for relevant genomic data about the SNPs, including genotypes of individuals.
 *    **simple_stats**: Compute some naive univariate statistics with uncorrected p-values, along with Bonferroni-corrections.
@@ -180,14 +180,14 @@ command-line arguments (which are specified in `snpko_utils.py` and listed below
 
 ### Logging
 
-Detailed logging information is written in the working directory to `run.log`.  By default, this file is located at `data/run.log`.
+Detailed logging information is written to an output file.  By default, this file is located at `data/run.log`.
 
 ### Rerunning the Code
 
-You may wish to rerun the code in part or in whole.  You'll need to run the `master.py` once to produce all the intermediate files, but from that point, you can rerun portions selectively.
+You may wish to rerun the code in part or in whole.  You'll need to run the `master.py` script once to produce all the intermediate files, but from that point, you can rerun portions selectively.
 
 For example, the default false discovery rate is 0.1 (i.e., 10%), but you may
-want to experiment with several values.   Since FDR only effects the
+want to experiment with several values.   The FDR only effects the
 classifier, so after running the code once, you can rerun just the classifier
 with a false discovery rate of 20% by running only the last step, e.g.:
 ```
@@ -201,9 +201,9 @@ assuming the set of SNPs doesn't change) and it will cache the HMM parameters
 fit from the EM run.
 
 Note that this process will overwrite old files in the working directory including
-(unless you use the `--keep_old_logs` flag) the old `run.log` file.
+the old `run.log` file (unless you use the `--keep_old_logs` flag).
 
-If you wish to preserve all your data as is start afresh, just
+If you wish to preserve all your old data but restart new processing afresh, just
 move the working directory to a new location, e.g.,:
 ```
 mv data/ data_saved_1/
@@ -276,7 +276,7 @@ optional arguments:
 
 ### Halting on Completion
 
-The following situation can occur: We run the module on some data, expecting it to take many hours to complete.  We use on a large, relatively expensive cloud instance to speed up the computation.  The code completes in the middle of the night.  We would really like the machine to shut itself down at this point so we do not need to keep paying for an idle instance.  In that situation, use the `--halt` flag, like so:
+The following situation can occur: We run the module on some data, expecting it to take many hours to complete.  We reserve a large, relatively expensive cloud instance to speed up the computation.  The code completes in the middle of the night.  We would really like the machine to shut itself down at this point so we do not need to keep paying for an idle instance.  In that situation, use the `--halt` flag, like so:
 ```
 sudo ./master_snpko.py --input my_SNP_data.csv --halt
 ```
@@ -345,51 +345,48 @@ SNP,fdr,fdr_type,label,obs_freq,uncorrected_odds_ratio,uncorrected_p_value
 rs6088765,0.1,mFDR,Imaging: Colon disease,0.73,6.111111,0.083833
 ```
 
-By default, we run 100 independent knockoffs for each experiment, and measure the percentage of knockoff trials in which a particular SNP shows up, for each label that we are predicting.  (For example, we might find that `rs12345` is a significant predictor for `symptom4` in 37 of the .)
+By default, we run 100 independent knockoffs for each experiment, and measure the percentage of knockoff trials in which a particular SNP shows up, for each label that we are predicting.  (For example, we might find that `rs12345` is a significant predictor for `symptom4` in 37 of the 100 runs.)
 
 ### P-values for the Selection Frequency
  
- Running "master_snpko.py" will run a series of knockoff trials aimed to
- generate lists of SNPs with a target FDR.  For a particular SNP and FDR
- threshold, then, we might discover that it appears in, say, 85% of all
- knock-off runs.  Let's call this fraction the *selection frequency*, and denote it by *Q*.
-
- So, should we consider a selection frequency of 85% to be significant?
-
- To address this question, we can do the following.
+For the following discussion, assume that we have settled a fixed FDR and suppose we are considering a single target label.  We are given the following data:
 ```
-     We examine the experimental data to determine
-         The SNPs of interest,
-         The number of people in the trials (say, X subjects), and
-         The labels for those people
-     We pull background data from ENSEMBL, with SNPs from Y>>X people.
-     for trial=1, ..., T=100:
-         Randomly partition ENSEMBLE into X subjects vs Y-X subjects.
-         Replace the experimental SNPs with the SNPs from the X
-             ENSEMBL subjects
-         Restrict ENSEMBL data to the Y-X subjects.
-         Proceed as usual with SNPKO.
-         For each label (e.g., "Imaging: Fistula"), each SNP shows up
-             in some fraction of the FDR lists.  Record the maximum,
-             across all SNPS, of Q.  I.e., for a given label,
-                 max_{SNP} Q_{SNP, label}
+* The SNPs of interest.
+* A background dataset B.  This is a collection of SNPs from N_B people. In our case, we gather this data from ENSEMBL.
+* An experimental data set X.  For the N_X people in this dataset, we collect both the SNPs and a target label.
 ```
+  A single knockoff trial might look something like this:
+```
+* Use B to recover a hidden Markov Model for generating data.
+* Use this background model to add (uncorrelated) features to X.  Call this expanded design matrix Y.
+* Fit a classifier to Y.
+* Extract feature importance from the classifier.
+* Use the statistical knockoff procedure on the feature importance list to produce a list of SNPs with a desired FDR.
+```
+Because the preceding process involves sampling knockoffs from the background model, it is random and can be performed multiple times.  A *full knockoff run* might consist of 100 individual knockoff trials, producing a set of 100 FDR lists.  Because of the randomness, some of these lists may differ from each other.  For a given SNP, we might discover that it appears in, say, 85% of those lists.  Let's call this fraction the *selection frequency*, and denote it by *Q_{SNP}*.
 
- Once all T=100 trials are done, we now have a distribution for the maximum
- selection frequency Q for the null hypothesis (namely, that there is no correlation between the
- SNPs and the binary output).  So, for example, if we're interested in a
- p=0.05 significance level, we consider all <SNP,label> pairs that are
- greater than or equal to the 95th largest value of Q.
+So, should we consider a selection frequency of 85% to be statistically significant?
 
- The `snpko` module includes code for computing p-values for selection frequency.  Note that this
- is on the order of 100x slower than the regular SNPKO processing, so is best done by splitting
- the work across multiple large machines.  We also support sharing the data via Gcloud or AWS
- by command line arguments to keep the bookkeeping simpler.
+To address this question, we can modify a knockoff trial as follows:
+```
+We create a list emperical_Q, which is initially empty
+For trial 1,2,...,N:
+* Randomly select P, a set of N_X (distinct) people from B.
+* Remove the corresponding rows from B, producing B'
+* Construct a new design matrix X' using the same labels as X but using the SNPs from P.
+* Perform a full knockoff run with X' in place of X and B' in place of B.
+* Produce a list of candidates SNPs matching a target FDR.
+* Compute max_{SNP} Q_{SNP} for each trial and add to the list empirical_Q.
+```
+The list `empirical_Q` is a set of N independent samples of the maximum Q observed from the null hypothesis (since by construction the features are independent of the labels.)  We can use this to compute a p-value as follows.  Suppose, e.g., we compute `z`, the 0.95 quantile of the empirical distribution described by `empirical_Q`.  If Q_SNP>z, then that SNP is significant with a significance of `p=0.05`.
 
+The `snpko` module includes code for computing p-values for selection frequency.  Note that this is a computationally intensive process-- computing a single knockoff trial might take 20 seconds, but we might repeat the process 100 times in a full run, and then repeat all of *that* 100 times to compute p-values.  That could take 2-3 days.  However, most of these computations are embarrassingly parallel, so we can split the work across multiple large machines.  We also support sharing the data via Gcloud or AWS by command line arguments to keep the bookkeeping simpler.
+
+We note in passing that the preceding discussion made several assumptions.  First, in the case with the true X, we should randomly remove N_X people from Y to keep the sizes comparable.  However, since N_B>>N_X, this correction is insignificant.  Second, the preceding analysis applies for a single label.  We have multiple labels, so each p-value is individually correct, but if we needed a joint p-value we should correct for the multiple hypothesis issue.
 
 ### Regression Tests
 
-To confirm that the code is functioning correctly, we provide a regression test.  The test generates some synthetic data with known correlations, runs `master_snpko.master()`, and confirms that the correct SNPs were recovered.  It can be run as follows:
+To confirm that the code is functioning correctly, we provide a simple regression test.  The test generates synthetic data with known correlations, runs `master_snpko.master()`, and confirms that the correct SNPs were recovered.  It can be run as follows:
 
 ```
 cd snpko/  # change to main SNPKO directory, wherever that is
