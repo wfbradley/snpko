@@ -350,39 +350,37 @@ By default, we run 100 independent knockoffs for each experiment, and measure th
 ### P-values for the Selection Frequency
  
 For the following discussion, assume that we have settled a fixed FDR and suppose we are considering a single target label.  We are given the following data:
-```
 * The SNPs of interest.
-* A background dataset B.  This is a collection of SNPs from N_B people. In our case, we gather this data from ENSEMBL.
-* An experimental data set X.  For the N_X people in this dataset, we collect both the SNPs and a target label.
-```
-  A single knockoff trial might look something like this:
-```
+* A background dataset B.  This is a collection of SNPs from N<sub>B</sub> people. In our case, we gather this data from ENSEMBL.
+* An experimental data set X.  For the N<sub>X</sub> people in this dataset, we collect both the SNPs and a target label.
+
+A single knockoff trial might look something like this:
 * Use B to recover a hidden Markov Model for generating data.
-* Use this background model to add (uncorrelated) features to X.  Call this expanded design matrix Y.
+* Use this background model to add (uncorrelated) features to X. Call this expanded design matrix Y.
 * Fit a classifier to Y.
 * Extract feature importance from the classifier.
 * Use the statistical knockoff procedure on the feature importance list to produce a list of SNPs with a desired FDR.
-```
-Because the preceding process involves sampling knockoffs from the background model, it is random and can be performed multiple times.  A *full knockoff run* might consist of 100 individual knockoff trials, producing a set of 100 FDR lists.  Because of the randomness, some of these lists may differ from each other.  For a given SNP, we might discover that it appears in, say, 85% of those lists.  Let's call this fraction the *selection frequency*, and denote it by *Q_{SNP}*.
+
+Because the preceding process involves sampling knockoffs from the background model, it is random and can be performed multiple times.  A *full knockoff run* might consist of 100 individual knockoff trials, producing a set of 100 FDR lists.  Because of the randomness, some of these lists may differ from each other.  For a given SNP, we might discover that it appears in, say, 85% of those lists.  Let's call this fraction the *selection frequency*, and denote it by *Q<sub>SNP</sub>*.
 
 So, should we consider a selection frequency of 85% to be statistically significant?
 
 To address this question, we can modify a knockoff trial as follows:
-```
-We create a list emperical_Q, which is initially empty
-For trial 1,2,...,N:
-* Randomly select P, a set of N_X (distinct) people from B.
-* Remove the corresponding rows from B, producing B'
-* Construct a new design matrix X' using the same labels as X but using the SNPs from P.
-* Perform a full knockoff run with X' in place of X and B' in place of B.
-* Produce a list of candidates SNPs matching a target FDR.
-* Compute max_{SNP} Q_{SNP} for each trial and add to the list empirical_Q.
-```
-The list `empirical_Q` is a set of N independent samples of the maximum Q observed from the null hypothesis (since by construction the features are independent of the labels.)  We can use this to compute a p-value as follows.  Suppose, e.g., we compute `z`, the 0.95 quantile of the empirical distribution described by `empirical_Q`.  If Q_SNP>z, then that SNP is significant with a significance of `p=0.05`.
+
+* We create a list `empirical_Q`, which is initially empty
+* For trial 1,2,...,N:
+  * Randomly select P, a set of N<sub>X</sub> (distinct) people from B.
+  * Remove the corresponding rows from B, producing B'
+  * Construct a new design matrix X' using the same labels as X but using the SNPs from P.
+  * Perform a full knockoff run with X' in place of X and B' in place of B.
+  * Produce a list of candidates SNPs matching a target FDR.
+  * Compute max<sub>SNP</sub> Q<sub>SNP</sub> for each trial and add it to the list `empirical_Q`.
+
+The list `empirical_Q` is a set of N independent samples of the maximum Q observed from the null hypothesis (since by construction the features are independent of the labels.)  We can use this to compute a p-value as follows.  Suppose, e.g., we compute `z`, the 0.95 quantile of the empirical distribution described by `empirical_Q`.  If Q<sub>SNP</sub>>z, then that SNP is significant with a significance of `p=0.05`.
 
 The `snpko` module includes code for computing p-values for selection frequency.  Note that this is a computationally intensive process-- computing a single knockoff trial might take 20 seconds, but we might repeat the process 100 times in a full run, and then repeat all of *that* 100 times to compute p-values.  That could take 2-3 days.  However, most of these computations are embarrassingly parallel, so we can split the work across multiple large machines.  We also support sharing the data via Gcloud or AWS by command line arguments to keep the bookkeeping simpler.
 
-We note in passing that the preceding discussion made several assumptions.  First, in the case with the true X, we should randomly remove N_X people from Y to keep the sizes comparable.  However, since N_B>>N_X, this correction is insignificant.  Second, the preceding analysis applies for a single label.  We have multiple labels, so each p-value is individually correct, but if we needed a joint p-value we should correct for the multiple hypothesis issue.
+We note in passing that the preceding discussion made several assumptions.  First, in the case with the true X, we should randomly remove N<sub>X</sub> people from Y to keep the sizes comparable.  However, since N<sub>B</sub>>>N<sub>X</sub>, this correction is insignificant.  Second, the preceding analysis applies for a single label.  We have multiple labels, so each p-value is individually correct, but if we needed a joint p-value we should correct for the multiple hypothesis issue.
 
 ### Regression Tests
 
